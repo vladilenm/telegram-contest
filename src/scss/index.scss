@@ -1,0 +1,80 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.chart-wrap {
+  width: 100%;
+  padding-top: 2rem;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.btn {
+  position: absolute;
+  top: 50px;
+  left: 100px;
+  border: none;
+  padding: 1rem 2rem;
+  background: blueviolet;
+  color: #fff;
+  outline: none;
+  border-radius: 5px;
+  cursor: pointer;
+
+  &:active {
+    box-shadow: inset 4px 4px 4px rgba(0, 0, 0, .2);
+  }
+}
+
+
+.graph {
+
+  &__zoom {
+    position: relative;
+    padding: 0 4px;
+
+    &-right, &-left {
+      background: #f5f9fb;
+      opacity: .8;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+    }
+
+    &-left {
+      left: 0;
+    }
+
+    &-right {
+      right: 0;
+    }
+
+    &-arrow-left, &-arrow-right {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      background: #ddeaf3;
+      width: 4px;
+    }
+
+    &-arrow-left {
+      right: 0;
+      cursor: w-resize;
+    }
+
+    &-arrow-right {
+      left: 0;
+      cursor: e-resize;
+    }
+
+    &-window {
+      position: absolute;
+      background: transparent;
+      top: 0;
+      bottom: 0;
+    }
+  }
+}
