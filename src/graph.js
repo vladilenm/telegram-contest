@@ -38,7 +38,10 @@ export class Graph {
     this.rightArrow = this.el.querySelector('[data-type=right]')
 
     this.el.addEventListener('mousedown', this.handleMouseDown.bind(this))
-    this.el.addEventListener('mouseup', () => document.onmousemove = null)
+    this.el.addEventListener('mouseup', () => {
+      document.onmousemove = null
+      // this.renderDetailChart()
+    })
 
     new ZoomChart({
       el: this.zoomGraph,
@@ -47,39 +50,42 @@ export class Graph {
     })
 
     this.setZoomPosition(this.width - this.zoomWidth, 5)
+    // this.renderDetailChart()
   }
 
-  getData() {
-    const data = this.data
+  getColumns() {
+    const columns = this.data.columns.concat()
 
-    const length = data.columns[0].length - 1
+    const length = columns[0].length - 1
 
     const [leftPercent, visiblePercent] = this.getZoomArea()
 
-    const left = Math.ceil(length * leftPercent / 100)
-    const visible = Math.ceil(length * visiblePercent / 100)
+    // console.log('leftPercent', leftPercent)
+    // console.log('visiblePercent', visiblePercent)
 
-    for (let i = 0; i < data.columns.length; i++) {
-      let col = data.columns[i].concat()
-      const first = col.shift()
-      col = col.slice(left, left + visible)
-      col.unshift(first)
-      data.columns[i] = col
+
+    const left = Math.floor(length * leftPercent / 100)
+    const visible = Math.floor(length * visiblePercent / 100)
+    for (let i = 0; i < columns.length; i++) {
+      const first = columns[i][0]
+      const from = left > 1 ? left - 2 : 1
+      columns[i] = columns[i].slice(from, left + visible + 2)
+      columns[i].unshift(first)
     }
 
-    return data
+    return columns
   }
 
   renderDetailChart() {
-    console.log('render')
-    const data = this.getData()
+    const columns = this.getColumns()
+    // console.log('render', columns)
     // this.detailGraph.innerHTML = ''
 
     new Chart({
       el: this.detailGraph,
       width: this.width,
       height: this.height,
-      data: data
+      data: {...this.data, columns}
     })
   }
 
@@ -87,23 +93,10 @@ export class Graph {
   getZoomArea() {
     const left = parseInt(this.zoom.style.left)
 
-    // const ar = new Array(150).fill('')
-    // for (let i = 0; i < ar.length; i++) {
-    //   ar[i] = i + 1
-    // }
-
-    // floor?
-    const leftPercent = Math.floor((left * 100) / this.width)
-    const visiblePercent = Math.ceil((this.zoomWidth * 100) / this.width)
+    const leftPercent = left * 100 / this.width
+    const visiblePercent = (this.zoomWidth * 100) / this.width
 
     return [leftPercent, visiblePercent]
-
-    // const leftSplice = Math.ceil(ar.length * leftPercent / 100)
-    // const visible = Math.ceil(ar.length * visiblePercent / 100)
-
-    // todo: lost last element
-    // console.log(ar.slice(leftSplice, leftSplice + visible))
-
   }
 
   setZoomPosition(left, right) {
@@ -117,13 +110,13 @@ export class Graph {
       return
     }
 
-    console.log('leftparse', parseInt(this.zoom.style.left))
-    console.log('left', left)
-    console.log('leftparse', parseInt(this.zoom.style.right))
-    console.log('left', right)
-    if (parseInt(this.zoom.style.left) === left && parseInt(this.zoom.style.right) === right) {
-      return
-    }
+    // console.log('leftparse', parseInt(this.zoom.style.left))
+    // console.log('left', left)
+    // console.log('leftparse', parseInt(this.zoom.style.right))
+    // console.log('left', right)
+    // if (parseInt(this.zoom.style.left) === left && parseInt(this.zoom.style.right) === right) {
+    //   return
+    // }
 
     this.zoom.style.width = `${this.zoomWidth}px`
     this.zoom.style.left = `${left}px`
@@ -145,6 +138,9 @@ export class Graph {
       const startX = event.pageX
       document.onmousemove = e => {
         const delta = startX - e.pageX
+        if (delta === 0) {
+          return
+        }
         const left = zoom.left - delta
         const right = this.width - left - this.zoomWidth
         this.setZoomPosition(left, right)
@@ -154,6 +150,9 @@ export class Graph {
       const startX = event.pageX
       document.onmousemove = e => {
         const delta = startX - e.pageX
+        if (delta === 0) {
+          return
+        }
         if (type === 'left') {
           this.zoomWidth = zoomWidth + delta
           const left = this.width - this.zoomWidth - zoom.right
