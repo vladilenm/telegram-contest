@@ -50,7 +50,6 @@ export class Graph {
     this.el.addEventListener('mousedown', this.handleMouseDown.bind(this))
     this.el.addEventListener('mouseup', () => {
       document.onmousemove = null
-      // this.renderDetailChart()
     })
 
     new ZoomChart({
@@ -59,34 +58,27 @@ export class Graph {
       data: this.data
     })
 
-    this.setZoomPosition(this.width - this.zoomWidth, 5)
+    this.setZoomPosition(this.width - this.zoomWidth, 0)
     // this.renderDetailChart()
   }
 
   getData() {
-    const data = {
-      datasets: [],
-      labels: []
-    }
+    const data = {datasets: []}
+
     const datasets = this.data.datasets.concat()
     const labels = this.data.labels.concat()
 
-    const [leftPercent, visiblePercent] = this.getZoomArea()
+    const [left, right] = this.getZoomPosition()
 
-    const left = Math.floor(labels.length * leftPercent / 100)
-    const visible = Math.floor(labels.length * visiblePercent / 100)
+    const leftIndex = Math.ceil(labels.length * left / 100)
+    const rightIndex = Math.ceil(labels.length * right / 100)
 
-    const getArrayRange = (array, left, visible) => {
-      const from = left > 1 ? left - 2 : 1
-      return array.slice(from, left + visible + 2)
-    }
-
-    data.labels = getArrayRange(labels, left, visible)
+    data.labels = labels.slice(leftIndex - 1, rightIndex)
 
     for (let i = 0; i < datasets.length; i++) {
       data.datasets.push({
         ...datasets[i],
-        data: getArrayRange(datasets[i].data, left, visible)
+        data: datasets[i].data.slice(leftIndex - 1, rightIndex)
       })
     }
 
@@ -94,43 +86,33 @@ export class Graph {
   }
 
   renderDetailChart() {
-    const data = this.getData()
-
     new Chart({
       el: this.detailGraph,
       width: this.width,
       height: this.height,
-      data: data
+      data: this.getData()
     })
   }
 
-  getZoomArea() {
-    const left = parseInt(this.zoom.style.left)
+  getZoomPosition() {
+    const leftPx = parseInt(this.left.style.width)
+    const rightPx = this.width - parseInt(this.right.style.width)
 
-    const leftPercent = left * 100 / this.width
-    const visiblePercent = (this.zoomWidth * 100) / this.width
-
-    return [leftPercent, visiblePercent]
+    return [
+      leftPx * 100 / this.width,
+      rightPx * 100 / this.width
+    ]
   }
 
   setZoomPosition(left, right) {
-    const arrowWidth = 4
     if (
-      left <= arrowWidth ||
-      right <= arrowWidth ||
+      left <= 0 ||
+      right < 0 ||
       (left + this.zoomWidth) > this.width ||
       this.zoomWidth <= 10
     ) {
       return
     }
-
-    // console.log('leftparse', parseInt(this.zoom.style.left))
-    // console.log('left', left)
-    // console.log('leftparse', parseInt(this.zoom.style.right))
-    // console.log('left', right)
-    // if (parseInt(this.zoom.style.left) === left && parseInt(this.zoom.style.right) === right) {
-    //   return
-    // }
 
     this.zoom.style.width = `${this.zoomWidth}px`
     this.zoom.style.left = `${left}px`
