@@ -10,21 +10,38 @@ export function getCoords(elem) {
   }
 }
 
-export function getYValues(columns) {
-  return columns.reduce((all, column) => {
-    if (column[0] === 'x') {
-      return all
+export function transformData(initialData) {
+  const datasets = []
+  let labels = []
+
+  initialData.columns.forEach(item => {
+    if (item[0] === 'x') {
+      item.shift()
+      labels = [...item]
+    } else {
+      const type = item.shift()
+      datasets.push({
+        data: [...item],
+        color: initialData.colors[type],
+        name: initialData.names[type],
+        type: initialData.types[type]
+      })
     }
-    const col = column.concat()
-    col.shift()
-    return all.concat(col)
+  })
+
+  return {labels, datasets}
+}
+
+export function getYValues(datasets) {
+  return datasets.reduce((all, dataset) => {
+    return all.concat(dataset.data)
   }, [])
 }
 
-export function getBoundary(columns) {
-  const allValues = getYValues(columns)
-  const min = Math.floor(Math.min.apply(null, allValues) * 0.8)
-  const max = Math.ceil(Math.max.apply(null, allValues) * 1.2)
+export function getBoundary(datasets) {
+  const allValues = getYValues(datasets)
+  const min = Math.floor(Math.min.apply(null, allValues)) // * 0.8
+  const max = Math.ceil(Math.max.apply(null, allValues)) // * 1.2
 
   return [min, max]
 }
@@ -36,17 +53,12 @@ export function computeRatio(max, min, columnsCount, width, height) {
   return [xRatio, yRatio]
 }
 
-export function getCoordinates(columns, min, height, xRatio, yRatio) {
-  return columns
-    .map((value, i) => {
-      if (typeof value === 'string') {
-        return
-      }
-      const y = height - ((value - min) / yRatio)
-      const x = i * xRatio - (xRatio / 2)
-      return [x, y]
-    })
-    .filter(c => !!c)
+export function getCoordinates(data, min, height, xRatio, yRatio) {
+  return data.map((value, index) => {
+    const y = height - ((value - min) / yRatio)
+    const x = index * xRatio - (xRatio / 2)
+    return [x, y]
+  })
 }
 
 export function dateFilter(date) {

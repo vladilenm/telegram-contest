@@ -1,5 +1,6 @@
 import {Chart} from './chart'
-import {ZoomChart} from './zoom-chart';
+import {ZoomChart} from './zoom-chart'
+import {transformData} from './utils';
 
 const template = `
   <div class="graph">
@@ -21,10 +22,19 @@ const template = `
 
 export class Graph {
   constructor(options) {
+    if (!options.el) {
+      throw new Error('[Telegram Chart]: El option must be provided')
+    }
+
+    if (!options.data) {
+      throw new Error('[Telegram Chart]: Data option must be provided')
+    }
+
     this.el = options.el
-    this.data = options.data
+    this.data = transformData(options.data)
     this.width = options.width || 500
     this.height = options.height || 300
+
     this.zoomWidth = Math.round(this.width * 3 / 10)
 
     this.el.insertAdjacentHTML('afterbegin', template)
@@ -32,10 +42,10 @@ export class Graph {
     this.zoomGraph = this.el.querySelector('canvas[data-type=gzoom]')
 
     this.left = this.el.querySelector('[data-type=leftm]')
-    this.leftArrow = this.el.querySelector('[data-type=left]')
+    // this.leftArrow = this.el.querySelector('[data-type=left]')
     this.zoom = this.el.querySelector('[data-type=zoom]')
     this.right = this.el.querySelector('[data-type=rightm]')
-    this.rightArrow = this.el.querySelector('[data-type=right]')
+    // this.rightArrow = this.el.querySelector('[data-type=right]')
 
     this.el.addEventListener('mousedown', this.handleMouseDown.bind(this))
     this.el.addEventListener('mouseup', () => {
@@ -46,49 +56,53 @@ export class Graph {
     new ZoomChart({
       el: this.zoomGraph,
       width: this.width,
-      data: this.data,
+      data: this.data
     })
 
     this.setZoomPosition(this.width - this.zoomWidth, 5)
     // this.renderDetailChart()
   }
 
-  getColumns() {
-    const columns = this.data.columns.concat()
-
-    const length = columns[0].length - 1
+  getData() {
+    const data = {
+      datasets: [],
+      labels: []
+    }
+    const datasets = this.data.datasets.concat()
+    const labels = this.data.labels.concat()
 
     const [leftPercent, visiblePercent] = this.getZoomArea()
 
-    // console.log('leftPercent', leftPercent)
-    // console.log('visiblePercent', visiblePercent)
+    const left = Math.floor(labels.length * leftPercent / 100)
+    const visible = Math.floor(labels.length * visiblePercent / 100)
 
-
-    const left = Math.floor(length * leftPercent / 100)
-    const visible = Math.floor(length * visiblePercent / 100)
-    for (let i = 0; i < columns.length; i++) {
-      const first = columns[i][0]
+    const getArrayRange = (array, left, visible) => {
       const from = left > 1 ? left - 2 : 1
-      columns[i] = columns[i].slice(from, left + visible + 2)
-      columns[i].unshift(first)
+      return array.slice(from, left + visible + 2)
     }
 
-    return columns
+    data.labels = getArrayRange(labels, left, visible)
+
+    for (let i = 0; i < datasets.length; i++) {
+      data.datasets.push({
+        ...datasets[i],
+        data: getArrayRange(datasets[i].data, left, visible)
+      })
+    }
+
+    return data
   }
 
   renderDetailChart() {
-    const columns = this.getColumns()
-    // console.log('render', columns)
-    // this.detailGraph.innerHTML = ''
+    const data = this.getData()
 
     new Chart({
       el: this.detailGraph,
       width: this.width,
       height: this.height,
-      data: {...this.data, columns}
+      data: data
     })
   }
-
 
   getZoomArea() {
     const left = parseInt(this.zoom.style.left)

@@ -1,7 +1,6 @@
 import data from './chart_data'
-import {Chart} from './chart'
+import {Graph} from './graph'
 import './scss/index.scss'
-import {Graph} from './graph';
 //
 // new Chart({
 //   el: document.querySelector('canvas'),
@@ -14,9 +13,9 @@ import {Graph} from './graph';
 
 new Graph({
   el: document.getElementById('graph'),
-    width: 800,
-    height: 300,
-    data: data[1],
+  width: 800,
+  height: 300,
+  data: data[2],
 })
 
 
