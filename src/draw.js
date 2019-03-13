@@ -1,8 +1,7 @@
-import {dateFilter} from './utils'
-
 export class Draw {
-  constructor(context) {
+  constructor(context, tooltip) {
     this.c = context
+    this.tooltip = tooltip
 
     this.font = 'normal 20px Helvetica,sans-serif'
     this.axisStrokeStyle = '#dfe6eb'
@@ -12,7 +11,7 @@ export class Draw {
     this.radius = 12
   }
 
-  line(coords, color, mouseX, dpiWidth, withCircles = true) {
+  line(coords, color, mouse, dpiWidth, withCircles = true) {
     this.c.beginPath()
     this.c.moveTo(coords[0][0], coords[0][1])
 
@@ -26,7 +25,7 @@ export class Draw {
 
     if (withCircles) {
       for (let i = 0; i < coords.length; i++) {
-        if (mouseX && Math.abs(mouseX - coords[i][0]) < dpiWidth / coords.length / 2) {
+        if (mouse && Math.abs(mouse.x - coords[i][0]) < dpiWidth / coords.length / 2) {
           this.circle(coords[i], color)
           break
         }
@@ -66,7 +65,7 @@ export class Draw {
     this.c.stroke()
   }
 
-  yAxis(labels, dpiWidth, dpiHeight, xRatio, mouseX) {
+  yAxis(labels, dpiWidth, dpiHeight, xRatio, mouse) {
     this.c.fillStyle = this.axisFillStyle
     this.c.font = this.font
     this.c.strokeStyle = this.axisStrokeStyle
@@ -76,20 +75,20 @@ export class Draw {
     this.c.moveTo(0, 0)
 
     for (let i = 0; i < labels.length; i++) {
-      const x = i * xRatio
+      const x = Math.floor(i * xRatio)
 
       // TODO: 5 is magic number now, should be computed from labels
       if (i % 5 === 0) {
-        const text = dateFilter(labels[i])
-        this.c.fillText(text, x, dpiHeight - 10)
+        this.c.fillText(labels[i], x, dpiHeight - 10)
       }
 
-      if (!mouseX || Math.abs(x - mouseX) > ((dpiWidth / labels.length) / 2)) {
+      if (!mouse || Math.abs(x - mouse.x) > ((dpiWidth / labels.length) / 2)) {
         continue
       }
       this.c.moveTo(x, 0)
-      // 40 xAxis height
-      this.c.lineTo(x, dpiHeight - 40)
+      this.c.lineTo(x, dpiHeight - 40) // 40 xAxis height
+      this.tooltip.show(mouse.tooltip, `${labels[i]} ${x}`)
+
     }
 
     this.c.stroke()

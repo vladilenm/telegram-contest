@@ -54,6 +54,7 @@ export function computeRatio(max, min, columnsCount, width, height) {
 }
 
 export function getCoordinates(data, min, height, xRatio, yRatio) {
+  console.log(data)
   return data.map((value, index) => {
     const y = Math.floor(height - ((value - min) / yRatio))
     const x = Math.floor(index * xRatio)
@@ -61,8 +62,9 @@ export function getCoordinates(data, min, height, xRatio, yRatio) {
   })
 }
 
-export function dateFilter(date) {
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'short', day: 'numeric',
-  }).format(date)
+const shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+export function dateFilter(timestamp) {
+  const date = new Date(timestamp)
+  return `${shortMonths[date.getMonth()]} ${date.getDate()}`
 }

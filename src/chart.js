@@ -1,4 +1,4 @@
-import {computeRatio, getBoundary, getCoordinates} from './utils'
+import {computeRatio, dateFilter, getBoundary, getCoordinates} from './utils'
 import {Draw} from './draw'
 
 export class Chart {
@@ -23,7 +23,7 @@ export class Chart {
     this.el.height = this.dpiHeight
 
     this.draw = new Draw(this.c, this.tooltip)
-    this.mouseX = null
+    this.mouseEvent = null
 
     this.render = this.render.bind(this)
     this.mouseMoveHandler = this.mouseMoveHandler.bind(this)
@@ -95,30 +95,32 @@ export class Chart {
     this.computeRatio()
 
     if (this.isFullChart) {
-      const labels = this.data.labels.map(label => new Date(label))
-      this.draw.yAxis(labels, this.dpiWidth, this.dpiHeight, this.xRatio, this.mouseX)
+      const labels = this.data.labels.map(label => dateFilter(label))
+      this.draw.yAxis(labels, this.dpiWidth, this.dpiHeight, this.xRatio, this.mouseEvent)
       this.draw.xAxis(this.viewHeight, this.yRatio, this.dpiWidth)
     }
 
     this.data.datasets.forEach(dataset => {
       const coords = getCoordinates(dataset.data, this.yMin, this.viewHeight, this.xRatio, this.yRatio)
-      this.draw.line(coords, dataset.color, this.mouseX, this.dpiWidth, this.isFullChart)
+      this.draw.line(coords, dataset.color, this.mouseEvent, this.dpiWidth, this.isFullChart)
     })
   }
 
   mouseLeaveHandler() {
     console.log('mouseLeaveHandler')
-    this.mouseX = null
-    // this.tooltip.hide()
+    this.mouseEvent = null
+    this.tooltip.hide()
   }
 
   mouseMoveHandler({clientX, clientY}) {
-    const canvas = this.el.getBoundingClientRect()
-    this.mouseX = (clientX - canvas.left) * 2
-    // this.tooltip.show({
-    //   top: clientY - canvas.top,
-    //   left:  clientX - canvas.left
-    // })
+    const {left, top} = this.el.getBoundingClientRect()
+    this.mouseEvent = {
+      x: (clientX - left) * 2,
+      tooltip: {
+        top: clientY - top,
+        left:  clientX - left
+      }
+    }
   }
 
   clear() {
