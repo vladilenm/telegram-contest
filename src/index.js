@@ -1,4 +1,4 @@
-import data from './chart_data'
+import data from './data/chart_data'
 import {Graph} from './graph'
 import './scss/index.scss'
 

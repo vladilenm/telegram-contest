@@ -12,7 +12,7 @@ export class Draw {
     this.radius = 12
   }
 
-  line(coords, color, mouse, withCircles = true) {
+  line(coords, color, mouseX, dpiWidth, withCircles = true) {
     this.c.beginPath()
     this.c.moveTo(coords[0][0], coords[0][1])
 
@@ -25,13 +25,12 @@ export class Draw {
     this.c.closePath()
 
     if (withCircles) {
-      coords.forEach(([x, y]) => this.circle(x, y, color, mouse))
+      coords.forEach(([x, y]) => this.circle(x, y, color, mouseX, dpiWidth / coords.length))
     }
   }
 
-  circle(x, y, color, mouse) {
-    // TODO: calculate depending on xScale
-    if (!mouse.x || Math.abs(mouse.x - x) > this.radius / 2) {
+  circle(x, y, color, mouseX, boundary) {
+    if (!mouseX || Math.abs(mouseX - x) > boundary / 2) {
       return
     }
     this.c.beginPath()
@@ -65,7 +64,7 @@ export class Draw {
     this.c.stroke()
   }
 
-  yAxis(labels, dpiWidth, dpiHeight, xRatio, mouse) {
+  yAxis(labels, dpiWidth, dpiHeight, xRatio, mouseX) {
     this.c.fillStyle = this.axisFillStyle
     this.c.font = this.font
     this.c.strokeStyle = this.axisStrokeStyle
@@ -83,8 +82,7 @@ export class Draw {
         this.c.fillText(text, x, dpiHeight - 10)
       }
 
-      // TODO: radius / 2 should calc depend on visible items count
-      if (!mouse.x || Math.abs(x - mouse.x) > this.radius / 2) {
+      if (!mouseX || Math.abs(x - mouseX) > ((dpiWidth / labels.length) / 2)) {
         continue
       }
       this.c.moveTo(x, 0)

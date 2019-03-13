@@ -2,4 +2,4 @@
 2. Zoom logic to component
 3. xAxis and yAxis to grid method
 4. Animation to zoom
-5. get rid of zoomWidth
+5. get rid of zoomWidth +

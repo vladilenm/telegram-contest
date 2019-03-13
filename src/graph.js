@@ -35,8 +35,6 @@ export class Graph {
     this.width = options.width || 500
     this.height = options.height || 300
 
-    this.zoomWidth = Math.round(this.width * 3 / 10)
-
     this.el.insertAdjacentHTML('afterbegin', template)
     this.detailGraph = this.el.querySelector('canvas[data-type=gdetail]')
     this.zoomGraph = this.el.querySelector('canvas[data-type=gzoom]')
@@ -45,20 +43,22 @@ export class Graph {
     this.zoom = this.el.querySelector('[data-type=zoom]')
     this.right = this.el.querySelector('[data-type=rightm]')
 
-    this.el.addEventListener('mousedown', this.handleMouseDown.bind(this))
-    this.el.addEventListener('mouseup', () => {
-      document.onmousemove = null
-    })
+    this.mouseDownHandler = this.mouseDownHandler.bind(this)
+    this.mouseUpHandler = this.mouseUpHandler.bind(this)
 
-    new ZoomChart({
+    this.el.addEventListener('mousedown', this.mouseDownHandler)
+    this.el.addEventListener('mouseup', this.mouseUpHandler)
+
+    this.zoomChart = new ZoomChart({
       el: this.zoomGraph,
       width: this.width,
       data: this.data
     })
 
-    this.setZoomPosition(this.width - this.zoomWidth, 0)
-
+    const defaultZoomWidth = this.width * 3 / 10 // 30%
+    this.setZoomPosition(this.width - defaultZoomWidth, 0)
   }
+
   getData() {
     const data = {datasets: []}
 
@@ -91,7 +91,7 @@ export class Graph {
         data: this.getData()
       })
     } else {
-      this.chart.renderWith(this.getData())
+      this.chart.setData(this.getData())
     }
   }
 
@@ -106,62 +106,80 @@ export class Graph {
   }
 
   setZoomPosition(left, right) {
-    if (
-      left <= 0 ||
-      right < 0 ||
-      (left + this.zoomWidth) > this.width ||
-      this.zoomWidth <= 10
-    ) {
+    const zoomWidth = this.width - right - left
+    if (zoomWidth <= 10) {
       return
     }
 
-    this.zoom.style.width = `${this.zoomWidth}px`
+    if (left <= 0) {
+      this.zoom.style.left = `0px`
+      this.left.style.width = `0px`
+      return
+    }
+
+    if (right < 0) {
+      this.zoom.style.right = `0px`
+      this.right.style.width = `0px`
+      return
+    }
+
+    this.zoom.style.width = `${zoomWidth}px`
     this.zoom.style.left = `${left}px`
     this.zoom.style.right = `${right}px`
 
     this.left.style.width = `${left}px`
     this.right.style.width = `${right}px`
 
-
     this.updateDetailChart()
   }
 
-  handleMouseDown(event) {
+  mouseDownHandler(event) {
     const type = event.target.dataset.type
     const zoom = {
       left: parseInt(this.zoom.style.left),
-      right: parseInt(this.zoom.style.right) || 0,
+      right: parseInt(this.zoom.style.right),
+      width: parseInt(this.zoom.style.width)
     }
     if (type === 'zoom') {
       const startX = event.pageX
-      document.onmousemove = e => {
+      window.onmousemove = e => {
         const delta = startX - e.pageX
         if (delta === 0) {
           return
         }
         const left = zoom.left - delta
-        const right = this.width - left - this.zoomWidth
+        const right = this.width - left - zoom.width
         this.setZoomPosition(left, right)
       }
     } else if (type === 'left' || type === 'right') {
-      const zoomWidth = this.zoomWidth
+      const zoomWidth = zoom.width
       const startX = event.pageX
-      document.onmousemove = e => {
+      window.onmousemove = e => {
         const delta = startX - e.pageX
         if (delta === 0) {
           return
         }
         if (type === 'left') {
-          this.zoomWidth = zoomWidth + delta
-          const left = this.width - this.zoomWidth - zoom.right
-          const right = this.width - this.zoomWidth - left
+          const left = this.width - (zoomWidth + delta) - zoom.right
+          const right = this.width - (zoomWidth + delta) - left
           this.setZoomPosition(left, right)
         } else if (type === 'right') {
-          this.zoomWidth = zoomWidth - delta
-          const right = this.width - this.zoomWidth - zoom.left
+          const right = this.width - (zoomWidth - delta) - zoom.left
           this.setZoomPosition(zoom.left, right)
         }
       }
     }
+  }
+
+  mouseUpHandler() {
+    window.onmousemove = null
+  }
+
+  destroy() {
+    this.el.removeEventListener('mousedown', this.mouseDownHandler)
+    this.el.removeEventListener('mouseup', this.mouseUpHandler)
+    this.chart.destroy()
+    this.zoomChart.destroy()
+    this.el.innerHTML = ''
   }
 }

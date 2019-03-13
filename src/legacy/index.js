@@ -1,7 +1,7 @@
 import {calculateSVGData} from './logic'
 import {config} from './config'
 import {drawChart} from './draw'
-import chartData from '../single.json'
+import chartData from '../data/single.json'
 import '../scss/index.scss'
 
 const $chart = document.querySelector('#chart')

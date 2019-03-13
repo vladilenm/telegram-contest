@@ -22,11 +22,35 @@ export class Chart {
     this.el.height = this.dpiHeight
 
     this.draw = new Draw(this.c)
-    this.mouse = {x: null}
+    this.mouseX = null
 
     this.render = this.render.bind(this)
     this.mouseMoveHandler = this.mouseMoveHandler.bind(this)
-    this.mouseLeave = this.mouseLeave.bind(this)
+    this.mouseLeaveHandler = this.mouseLeaveHandler.bind(this)
+
+    // Optimization
+
+    // this.proxy = new Proxy(this.data, {
+    //   set(target, prop, value) {
+    //     console.log(target, prop, value)
+    //     target[prop] = value
+    //   },
+    //   get(target, prop) {
+    //     console.log('get')
+    //     return target[prop]
+    //   }
+    // })
+
+    // Object.defineProperty(this, '_data', {
+    //   // value: options.data || {},
+    //   configurable: true,
+    //   enumerable: true,
+    //   // writable: true,
+    //   set(value) {
+    //     this.render()
+    //     console.log('SET', value)
+    //   }
+    // })
 
     this.init()
     this.raf = requestAnimationFrame(this.render)
@@ -34,21 +58,7 @@ export class Chart {
 
   init() {
     this.el.addEventListener('mousemove', this.mouseMoveHandler)
-    this.el.addEventListener('mouseleave', this.mouseLeave)
-  }
-
-  mouseLeave() {
-    this.mouse.x = null
-  }
-
-  mouseMoveHandler({clientX, clientY}) {
-    const canvas = this.el.getBoundingClientRect()
-    this.mouse = {
-      x: (clientX - canvas.left) * 2,
-      // y: this.dpiHeight - (clientY - canvas.top) * 2
-    }
-
-    // console.log(this.mouse)
+    this.el.addEventListener('mouseleave', this.mouseLeaveHandler)
   }
 
   computeRatio() {
@@ -67,13 +77,13 @@ export class Chart {
     this.yRatio = yRatio
   }
 
-  renderWith(data) {
+  setData(data) {
     this.data = data
     // this.render()
   }
 
   render() {
-    console.log('[Chart]: render')
+    // console.log('[Chart]: render')
     if (this.isFullChart) {
       this.raf = requestAnimationFrame(this.render)
     }
@@ -83,14 +93,24 @@ export class Chart {
 
     if (this.isFullChart) {
       const labels = this.data.labels.map(label => new Date(label))
-      this.draw.yAxis(labels, this.dpiWidth, this.dpiHeight, this.xRatio, this.mouse)
+      this.draw.yAxis(labels, this.dpiWidth, this.dpiHeight, this.xRatio, this.mouseX)
       this.draw.xAxis(this.viewHeight, this.yRatio, this.dpiWidth)
     }
 
     this.data.datasets.forEach(dataset => {
       const coords = getCoordinates(dataset.data, this.yMin, this.viewHeight, this.xRatio, this.yRatio)
-      this.draw.line(coords, dataset.color, this.mouse, this.isFullChart)
+      this.draw.line(coords, dataset.color, this.mouseX, this.dpiWidth, this.isFullChart)
     })
+  }
+
+  mouseLeaveHandler() {
+    this.mouseX = null
+  }
+
+  mouseMoveHandler({clientX}) {
+    const canvas = this.el.getBoundingClientRect()
+    this.mouseX = (clientX - canvas.left) * 2
+    // y: this.dpiHeight - (clientY - canvas.top) * 2
   }
 
   clear() {
@@ -98,9 +118,12 @@ export class Chart {
   }
 
   destroy() {
+    this.clear()
     this.el.removeEventListener('mousemove', this.mouseMoveHandler)
-    this.el.removeEventListener('mouseleave', this.mouseLeave)
-    cancelAnimationFrame(this.raf)
+    this.el.removeEventListener('mouseleave', this.mouseLeaveHandler)
+    if (this.raf) {
+      cancelAnimationFrame(this.raf)
+    }
   }
 }
 
