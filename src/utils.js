@@ -17,7 +17,7 @@ export function transformData(initialData) {
   initialData.columns.forEach(item => {
     if (item[0] === 'x') {
       item.shift()
-      labels = [...item]
+      labels = item.concat()
     } else {
       const type = item.shift()
       datasets.push({
@@ -54,7 +54,6 @@ export function computeRatio(max, min, columnsCount, width, height) {
 }
 
 export function getCoordinates(data, min, height, xRatio, yRatio) {
-  console.log(data)
   return data.map((value, index) => {
     const y = Math.floor(height - ((value - min) / yRatio))
     const x = Math.floor(index * xRatio)
@@ -63,8 +62,12 @@ export function getCoordinates(data, min, height, xRatio, yRatio) {
 }
 
 const shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+const shortDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
-export function dateFilter(timestamp) {
+export function dateFilter(timestamp, withDay) {
   const date = new Date(timestamp)
+  if (withDay) {
+    return `${shortDays[date.getDay()]}, ${shortMonths[date.getMonth()]} ${date.getDate()}`
+  }
   return `${shortMonths[date.getMonth()]} ${date.getDate()}`
 }

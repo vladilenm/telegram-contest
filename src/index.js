@@ -6,7 +6,7 @@ new Graph({
   el: document.getElementById('graph'),
   width: 800,
   height: 300,
-  data: data[0],
+  data: data[4],
 })
 //
 // new Graph({

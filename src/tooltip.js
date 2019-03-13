@@ -1,16 +1,26 @@
 export class Tooltip {
   constructor(el) {
     this.el = el
-    this.el.textContent = 'HELLO'
   }
 
-  show({top, left}, text) {
+  show({top, left}, data) {
+    this.el.innerHTML = ''
     const {height, width} = this.el.getBoundingClientRect()
     this.el.style.display = 'block'
     this.el.style.top = `${top - height}px`
     this.el.style.left = `${left + (width / 2)}px`
 
-    this.el.textContent = text
+    this.el.insertAdjacentHTML('afterbegin', `
+      <div class="tooltip-title">${data.title}</div>
+      <ul class="tooltip-list">
+        ${data.items.map(item => {
+          return `<li class="tooltip-list-item">
+            <div class="value" style="color: ${item.color}">${item.value}</div>
+            <div class="name" style="color: ${item.color}">${item.name}</div>
+          </li>`  
+        }).join(' ')}
+      </ul>
+    `)
   }
 
   hide() {

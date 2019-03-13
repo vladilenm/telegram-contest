@@ -2,6 +2,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: 'Roboto', sans-serif;
 }
 
 //body {
@@ -109,7 +110,29 @@
   left: 100px;
   //transition: .2s all;
 
-  .tooltip-body {
+  .tooltip-title {
+    text-align: center;
+    margin-bottom: .5rem;
+  }
 
+  .tooltip-list {
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+  }
+
+  .tooltip-list-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 50%;
+
+    .name {
+      font-size: .8rem;
+    }
+
+    .value {
+      font-weight: bold;
+    }
   }
 }

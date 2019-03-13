@@ -1,3 +1,5 @@
+import {dateFilter} from './utils';
+
 export class Draw {
   constructor(context, tooltip) {
     this.c = context
@@ -65,7 +67,7 @@ export class Draw {
     this.c.stroke()
   }
 
-  yAxis(labels, dpiWidth, dpiHeight, xRatio, mouse) {
+  yAxis(data, dpiWidth, dpiHeight, xRatio, mouse) {
     this.c.fillStyle = this.axisFillStyle
     this.c.font = this.font
     this.c.strokeStyle = this.axisStrokeStyle
@@ -74,21 +76,28 @@ export class Draw {
     this.c.beginPath()
     this.c.moveTo(0, 0)
 
-    for (let i = 0; i < labels.length; i++) {
+    for (let i = 0; i < data.labels.length; i++) {
       const x = Math.floor(i * xRatio)
 
       // TODO: 5 is magic number now, should be computed from labels
       if (i % 5 === 0) {
-        this.c.fillText(labels[i], x, dpiHeight - 10)
+        this.c.fillText(dateFilter(data.labels[i]), x, dpiHeight - 10)
       }
 
-      if (!mouse || Math.abs(x - mouse.x) > ((dpiWidth / labels.length) / 2)) {
+      if (!mouse || Math.abs(x - mouse.x) > ((dpiWidth / data.labels.length) / 2)) {
         continue
       }
       this.c.moveTo(x, 0)
       this.c.lineTo(x, dpiHeight - 40) // 40 xAxis height
-      this.tooltip.show(mouse.tooltip, `${labels[i]} ${x}`)
 
+      this.tooltip.show(mouse.tooltip, {
+        title: dateFilter(data.labels[i], true),
+        items: data.datasets.map(set => ({
+          name: set.name,
+          color: set.color,
+          value: set.data[i]
+        }))
+      })
     }
 
     this.c.stroke()

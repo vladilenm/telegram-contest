@@ -4,3 +4,4 @@
 4. Animation to zoom - (may be bad idea)
 5. get rid of zoomWidth +
 6. if slider full width -> right slide
+7. Tooltip position

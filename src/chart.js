@@ -95,8 +95,8 @@ export class Chart {
     this.computeRatio()
 
     if (this.isFullChart) {
-      const labels = this.data.labels.map(label => dateFilter(label))
-      this.draw.yAxis(labels, this.dpiWidth, this.dpiHeight, this.xRatio, this.mouseEvent)
+      // const labels = this.data.labels.map(label => dateFilter(label))
+      this.draw.yAxis(this.data, this.dpiWidth, this.dpiHeight, this.xRatio, this.mouseEvent)
       this.draw.xAxis(this.viewHeight, this.yRatio, this.dpiWidth)
     }
 
@@ -107,7 +107,7 @@ export class Chart {
   }
 
   mouseLeaveHandler() {
-    console.log('mouseLeaveHandler')
+    // console.log('mouseLeaveHandler')
     this.mouseEvent = null
     this.tooltip.hide()
   }
@@ -131,9 +131,7 @@ export class Chart {
     this.clear()
     this.el.removeEventListener('mousemove', this.mouseMoveHandler)
     this.el.removeEventListener('mouseleave', this.mouseLeaveHandler)
-    // if (this.raf) {
     cancelAnimationFrame(this.raf)
-    // }
   }
 }
 
