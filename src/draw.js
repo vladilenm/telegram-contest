@@ -25,14 +25,16 @@ export class Draw {
     this.c.closePath()
 
     if (withCircles) {
-      coords.forEach(([x, y]) => this.circle(x, y, color, mouseX, dpiWidth / coords.length))
+      for (let i = 0; i < coords.length; i++) {
+        if (mouseX && Math.abs(mouseX - coords[i][0]) < dpiWidth / coords.length / 2) {
+          this.circle(coords[i], color)
+          break
+        }
+      }
     }
   }
 
-  circle(x, y, color, mouseX, boundary) {
-    if (!mouseX || Math.abs(mouseX - x) > boundary / 2) {
-      return
-    }
+  circle([x, y], color) {
     this.c.beginPath()
     this.c.strokeStyle = color
     this.c.fillStyle = '#fff'
@@ -76,7 +78,7 @@ export class Draw {
     for (let i = 0; i < labels.length; i++) {
       const x = i * xRatio
 
-      // TODO: 10 is magic number now, should be computed from labels
+      // TODO: 5 is magic number now, should be computed from labels
       if (i % 5 === 0) {
         const text = dateFilter(labels[i])
         this.c.fillText(text, x, dpiHeight - 10)

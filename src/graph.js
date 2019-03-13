@@ -1,9 +1,11 @@
 import {Chart} from './chart'
 import {ZoomChart} from './zoom-chart'
+import {Tooltip} from './tooltip'
 import {transformData} from './utils'
 
 const template = `
   <div class="graph">
+    <div class="tooltip" data-type="tooltip" style="display: none;" tabindex="-1"></div>
     <canvas data-type="gdetail"></canvas>
     <div class="graph__zoom">
       <canvas data-type="gzoom"></canvas>
@@ -38,6 +40,7 @@ export class Graph {
     this.el.insertAdjacentHTML('afterbegin', template)
     this.detailGraph = this.el.querySelector('canvas[data-type=gdetail]')
     this.zoomGraph = this.el.querySelector('canvas[data-type=gzoom]')
+    this.tooltipEl = this.el.querySelector('[data-type=tooltip]')
 
     this.left = this.el.querySelector('[data-type=leftm]')
     this.zoom = this.el.querySelector('[data-type=zoom]')
@@ -47,7 +50,7 @@ export class Graph {
     this.mouseUpHandler = this.mouseUpHandler.bind(this)
 
     this.el.addEventListener('mousedown', this.mouseDownHandler)
-    this.el.addEventListener('mouseup', this.mouseUpHandler)
+    document.addEventListener('mouseup', this.mouseUpHandler)
 
     this.zoomChart = new ZoomChart({
       el: this.zoomGraph,
@@ -88,10 +91,11 @@ export class Graph {
         el: this.detailGraph,
         width: this.width,
         height: this.height,
+        tooltip: new Tooltip(this.tooltipEl),
         data: this.getData()
       })
     } else {
-      this.chart.setData(this.getData())
+      this.chart.updateData(this.getData())
     }
   }
 
@@ -177,7 +181,7 @@ export class Graph {
 
   destroy() {
     this.el.removeEventListener('mousedown', this.mouseDownHandler)
-    this.el.removeEventListener('mouseup', this.mouseUpHandler)
+    document.removeEventListener('mouseup', this.mouseUpHandler)
     this.chart.destroy()
     this.zoomChart.destroy()
     this.el.innerHTML = ''

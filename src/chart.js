@@ -7,6 +7,7 @@ export class Chart {
     this.c = this.el.getContext('2d')
     this.width = options.width
     this.height = options.height
+    this.tooltip = options.tooltip
     this.data = options.data || {}
     this.isFullChart = typeof options.isMini === 'boolean' ? !options.isMini : true
 
@@ -21,7 +22,7 @@ export class Chart {
     this.el.width = this.dpiWidth
     this.el.height = this.dpiHeight
 
-    this.draw = new Draw(this.c)
+    this.draw = new Draw(this.c, this.tooltip)
     this.mouseX = null
 
     this.render = this.render.bind(this)
@@ -57,8 +58,10 @@ export class Chart {
   }
 
   init() {
-    this.el.addEventListener('mousemove', this.mouseMoveHandler)
-    this.el.addEventListener('mouseleave', this.mouseLeaveHandler)
+    if (this.isFullChart) {
+      this.el.addEventListener('mousemove', this.mouseMoveHandler, true)
+      this.el.addEventListener('mouseleave', this.mouseLeaveHandler)
+    }
   }
 
   computeRatio() {
@@ -77,7 +80,7 @@ export class Chart {
     this.yRatio = yRatio
   }
 
-  setData(data) {
+  updateData(data) {
     this.data = data
     // this.render()
   }
@@ -104,13 +107,18 @@ export class Chart {
   }
 
   mouseLeaveHandler() {
+    console.log('mouseLeaveHandler')
     this.mouseX = null
+    // this.tooltip.hide()
   }
 
-  mouseMoveHandler({clientX}) {
+  mouseMoveHandler({clientX, clientY}) {
     const canvas = this.el.getBoundingClientRect()
     this.mouseX = (clientX - canvas.left) * 2
-    // y: this.dpiHeight - (clientY - canvas.top) * 2
+    // this.tooltip.show({
+    //   top: clientY - canvas.top,
+    //   left:  clientX - canvas.left
+    // })
   }
 
   clear() {
@@ -121,9 +129,9 @@ export class Chart {
     this.clear()
     this.el.removeEventListener('mousemove', this.mouseMoveHandler)
     this.el.removeEventListener('mouseleave', this.mouseLeaveHandler)
-    if (this.raf) {
-      cancelAnimationFrame(this.raf)
-    }
+    // if (this.raf) {
+    cancelAnimationFrame(this.raf)
+    // }
   }
 }
 

@@ -4,6 +4,13 @@
   box-sizing: border-box;
 }
 
+//body {
+//  display: flex;
+//  padding-top: 2rem;
+//  flex-wrap: wrap;
+//  justify-content: space-around;
+//}
+
 .chart-wrap {
   width: 100%;
   height: 100vh;
@@ -30,13 +37,17 @@
   }
 }
 
+//
+//
+//@mixin transition() {
+//  transition: all .1s linear;
+//}
 
 .graph {
   position: relative;
 
   &__zoom {
     position: relative;
-    //padding: 0 4px;
 
     &-right, &-left {
       background: #f5f9fb;
@@ -47,10 +58,12 @@
     }
 
     &-left {
+      //@include transition;
       left: 0;
     }
 
     &-right {
+      //@include transition;
       right: 0;
     }
 
@@ -73,10 +86,30 @@
     }
 
     &-window {
+      //@include transition;
       position: absolute;
       background: transparent;
       top: 0;
       bottom: 0;
     }
+  }
+}
+
+.tooltip {
+  position: absolute;
+  max-width: 200px;
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: 1px solid #dfe6eb;
+  box-shadow: 1px 1px 1px rgba(0,0,0,.05);
+  background: #fff;
+  overflow: hidden;
+
+  top: 50px;
+  left: 100px;
+  //transition: .2s all;
+
+  .tooltip-body {
+
   }
 }
