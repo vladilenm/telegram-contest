@@ -5,8 +5,7 @@ export class ZoomChart extends Chart {
     super({
       ...options,
       height: 40,
-      withGrid: false,
-      withAxis: false
+      isMini: true
     })
   }
 }

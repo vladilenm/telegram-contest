@@ -56,7 +56,7 @@ export function computeRatio(max, min, columnsCount, width, height) {
 export function getCoordinates(data, min, height, xRatio, yRatio) {
   return data.map((value, index) => {
     const y = height - ((value - min) / yRatio)
-    const x = index * xRatio - (xRatio / 2)
+    const x = index * xRatio
     return [x, y]
   })
 }

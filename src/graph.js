@@ -1,6 +1,6 @@
 import {Chart} from './chart'
 import {ZoomChart} from './zoom-chart'
-import {transformData} from './utils';
+import {transformData} from './utils'
 
 const template = `
   <div class="graph">
@@ -42,10 +42,8 @@ export class Graph {
     this.zoomGraph = this.el.querySelector('canvas[data-type=gzoom]')
 
     this.left = this.el.querySelector('[data-type=leftm]')
-    // this.leftArrow = this.el.querySelector('[data-type=left]')
     this.zoom = this.el.querySelector('[data-type=zoom]')
     this.right = this.el.querySelector('[data-type=rightm]')
-    // this.rightArrow = this.el.querySelector('[data-type=right]')
 
     this.el.addEventListener('mousedown', this.handleMouseDown.bind(this))
     this.el.addEventListener('mouseup', () => {
@@ -59,9 +57,8 @@ export class Graph {
     })
 
     this.setZoomPosition(this.width - this.zoomWidth, 0)
-    // this.renderDetailChart()
-  }
 
+  }
   getData() {
     const data = {datasets: []}
 
@@ -85,13 +82,17 @@ export class Graph {
     return data
   }
 
-  renderDetailChart() {
-    new Chart({
-      el: this.detailGraph,
-      width: this.width,
-      height: this.height,
-      data: this.getData()
-    })
+  updateDetailChart() {
+    if (!this.chart) {
+      this.chart = new Chart({
+        el: this.detailGraph,
+        width: this.width,
+        height: this.height,
+        data: this.getData()
+      })
+    } else {
+      this.chart.renderWith(this.getData())
+    }
   }
 
   getZoomPosition() {
@@ -121,7 +122,8 @@ export class Graph {
     this.left.style.width = `${left}px`
     this.right.style.width = `${right}px`
 
-    this.renderDetailChart()
+
+    this.updateDetailChart()
   }
 
   handleMouseDown(event) {

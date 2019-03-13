@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+
+
+<div style="width: 100%;padding-top: 5rem;display: flex;justify-content: center">
+  <canvas id="canvas" style="border: 1px solid black"></canvas>
+</div>
+
+
+<script>
+  const canvas = document.getElementById('canvas')
+  const c = canvas.getContext('2d')
+  const pos = {}
+
+
+  canvas.width = 1600
+  canvas.height = 600
+
+  canvas.style.width = 800 + 'px'
+  canvas.style.height = 300 + 'px'
+
+  const coords = [
+    [100, 90],
+    [400, 300],
+    [700, 150],
+    [900, 210]
+  ].map(([x, y]) => [x, canvas.height - y])
+
+  function createGrid() {
+    c.beginPath()
+    c.fillStyle = '#000'
+
+    c.strokeStyle = '#ccc'
+    c.font = 'normal 20px Helvetica,sans-serif'
+    c.lineWidth = 2
+
+    for (let i = 0; i < canvas.height; i += canvas.height / 5) {
+      c.fillText(i.toString(), 0, canvas.height - i)
+      c.moveTo(0, i)
+      c.lineTo(canvas.width, i)
+    }
+
+    coords.forEach(coord => {
+      if (Math.abs(pos.x - coord[0]) < 12) {
+        c.moveTo(coord[0], 0)
+        c.lineTo(coord[0], canvas.height)
+      }
+      c.fillText(coord[0].toString(), coord[0], canvas.height)
+
+    })
+
+    // coords.forEach(coord => {
+    // })
+
+    c.stroke()
+    c.closePath()
+  }
+
+  class Circle {
+    constructor(x, y, radius) {
+      this.x = x
+      this.y = y
+      this.defaultRadius = radius
+      this.radius = 0
+    }
+
+    update() {
+      if (Math.abs(pos.x - this.x) < this.defaultRadius) {
+        this.radius = this.defaultRadius
+      } else {
+        this.radius = 0
+      }
+      this.draw()
+    }
+
+    draw() {
+      c.strokeStyle = 'blue'
+      c.fillStyle = 'white'
+      c.beginPath()
+      c.arc(this.x, this.y, this.radius, 0, Math.PI * 2)
+      c.fill()
+      c.stroke()
+    }
+  }
+
+
+  function createLines() {
+    c.beginPath()
+    c.lineWidth = 4
+    c.strokeStyle = 'blue'
+
+    c.beginPath()
+    coords.forEach(([x, y]) => c.lineTo(x, y))
+    c.stroke()
+    c.closePath()
+
+
+  }
+
+  createGrid()
+  createLines()
+
+
+  const circles = coords.map(([x, y]) => new Circle(x, y, 12))
+  circles.forEach(c => c.draw())
+
+
+
+  canvas.addEventListener('mousemove', event => {
+    const canvasPos = canvas.getBoundingClientRect()
+    const x = event.clientX - canvasPos.left
+    const y = event.clientY - canvasPos.top
+
+    pos.x = x * 2
+    pos.y = y * 2
+
+    animate()
+  })
+
+  function animate() {
+    requestAnimationFrame(animate)
+    c.clearRect(0, 0, canvas.width, canvas.height)
+
+    createGrid()
+    createLines()
+    circles.forEach(c => c.update())
+  }
+
+  animate()
+
+</script>
+</body>
+</html>
