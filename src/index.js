@@ -5,8 +5,8 @@ import './scss/index.scss'
 new Graph({
   el: document.getElementById('graph'),
   width: 800,
-  height: 300,
-  data: data[4],
+  height: 200,
+  data: data[3],
 })
 //
 // new Graph({

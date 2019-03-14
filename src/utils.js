@@ -71,3 +71,9 @@ export function dateFilter(timestamp, withDay) {
   }
   return `${shortMonths[date.getMonth()]} ${date.getDate()}`
 }
+
+export function css(el, styles = {}) {
+  Object.keys(styles).forEach(style => {
+    el.style[style] = styles[style]
+  })
+}

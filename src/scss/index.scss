@@ -1,8 +1,16 @@
+@import "checkbox";
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: 'Roboto', sans-serif;
+}
+
+@mixin clear-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 //body {
@@ -38,17 +46,12 @@
   }
 }
 
-//
-//
-//@mixin transition() {
-//  transition: all .1s linear;
-//}
-
 .graph {
   position: relative;
 
   &__zoom {
     position: relative;
+    margin-bottom: 1rem;
 
     &-right, &-left {
       background: #f5f9fb;
@@ -59,12 +62,10 @@
     }
 
     &-left {
-      //@include transition;
       left: 0;
     }
 
     &-right {
-      //@include transition;
       right: 0;
     }
 
@@ -87,7 +88,6 @@
     }
 
     &-window {
-      //@include transition;
       position: absolute;
       background: transparent;
       top: 0;
@@ -99,6 +99,7 @@
 .tooltip {
   position: absolute;
   max-width: 200px;
+  min-width: 100px;
   padding: 0.5rem;
   border-radius: 5px;
   border: 1px solid #dfe6eb;
@@ -108,7 +109,6 @@
 
   top: 50px;
   left: 100px;
-  //transition: .2s all;
 
   .tooltip-title {
     text-align: center;
@@ -118,14 +118,15 @@
   .tooltip-list {
     display: flex;
     flex-wrap: wrap;
-    list-style: none;
+    @include clear-list;
   }
 
   .tooltip-list-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 50%;
+    margin-right: .5rem;
+    //width: 50%;
 
     .name {
       font-size: .8rem;
@@ -136,3 +137,8 @@
     }
   }
 }
+
+.graph__labels {
+
+}
+

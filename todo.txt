@@ -1,7 +1,6 @@
 1. Margins to bottom and top
 2. Zoom logic to component
 3. xAxis and yAxis to grid method
-4. Animation to zoom - (may be bad idea)
-5. get rid of zoomWidth +
-6. if slider full width -> right slide
++ 5. get rid of zoomWidth
++ 6. if slider full width -> right slide
 7. Tooltip position

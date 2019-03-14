@@ -2,12 +2,13 @@ import {Chart} from './chart'
 import {ZoomChart} from './zoom-chart'
 import {Tooltip} from './tooltip'
 import {transformData} from './utils'
+import {LabelCheckbox} from './label-checkbox'
 
 const template = `
   <div class="graph">
-    <div class="tooltip" data-type="tooltip" style="display: none;" tabindex="-1"></div>
-    <canvas data-type="gdetail"></canvas>
-    <div class="graph__zoom">
+    <div class="tooltip" data-type="tooltip" style="display: none;z-index: 3;" tabindex="-1"></div>
+    <canvas style="z-index: 2;" data-type="gdetail"></canvas>
+    <div class="graph__zoom" style="z-index: 1;">
       <canvas data-type="gzoom"></canvas>
       <div data-type="leftm" class="graph__zoom-left">
         <div data-type="left" class="graph__zoom-arrow-left"></div>
@@ -19,6 +20,7 @@ const template = `
         <div data-type="right" class="graph__zoom-arrow-right"></div>
       </div>
     </div>
+    <div class="graph__labels" data-type="labels"></div>
   </div>
 `
 
@@ -36,20 +38,29 @@ export class Graph {
     this.data = transformData(options.data)
     this.width = options.width || 500
     this.height = options.height || 300
+    this.activeLabels = this.data.datasets.map(set => set.name)
 
     this.el.insertAdjacentHTML('afterbegin', template)
     this.detailGraph = this.el.querySelector('canvas[data-type=gdetail]')
     this.zoomGraph = this.el.querySelector('canvas[data-type=gzoom]')
     this.tooltipEl = this.el.querySelector('[data-type=tooltip]')
+    this.labels = this.el.querySelector('[data-type=labels]')
 
     this.left = this.el.querySelector('[data-type=leftm]')
     this.zoom = this.el.querySelector('[data-type=zoom]')
     this.right = this.el.querySelector('[data-type=rightm]')
 
+
     this.mouseDownHandler = this.mouseDownHandler.bind(this)
     this.mouseUpHandler = this.mouseUpHandler.bind(this)
+    this.labelsClickHandler = this.labelsClickHandler.bind(this)
 
+    this.init()
+  }
+
+  init() {
     this.el.addEventListener('mousedown', this.mouseDownHandler)
+    this.labels.addEventListener('click', this.labelsClickHandler)
     document.addEventListener('mouseup', this.mouseUpHandler)
 
     this.zoomChart = new ZoomChart({
@@ -58,14 +69,36 @@ export class Graph {
       data: this.data
     })
 
-    const defaultZoomWidth = this.width * 3 / 10 // 30%
+    const defaultZoomWidth = this.width * 3 / 10 // 30% by default
     this.setZoomPosition(this.width - defaultZoomWidth, 0)
+
+    this.renderLabels()
+  }
+
+  renderLabels() {
+    const labels = this.data.datasets.map(({name, color}) => {
+      return new LabelCheckbox({name, color}).toHtml()
+    }).join(' ')
+    this.labels.insertAdjacentHTML('afterbegin', labels)
+  }
+
+  labelsClickHandler({target: {value, checked, tagName}}) {
+    if (tagName.toLowerCase() === 'input') {
+      if (checked) {
+        this.activeLabels.push(value)
+      } else {
+        this.activeLabels = this.activeLabels.filter(l => l !== value)
+      }
+    }
+    this.updateDetailChart()
   }
 
   getData() {
     const data = {datasets: []}
 
-    const datasets = this.data.datasets.concat()
+    const datasets = this.data.datasets.filter(set => {
+      return this.activeLabels.includes(set.name)
+    })
     const labels = this.data.labels.concat()
 
     const [left, right] = this.getZoomPosition()
@@ -73,14 +106,11 @@ export class Graph {
     const leftIndex = Math.ceil(labels.length * left / 100)
     const rightIndex = Math.ceil(labels.length * right / 100)
 
-    data.labels = labels.slice(leftIndex - 1, rightIndex)
-
-    for (let i = 0; i < datasets.length; i++) {
-      data.datasets.push({
-        ...datasets[i],
-        data: datasets[i].data.slice(leftIndex - 1, rightIndex)
-      })
-    }
+    data.labels = labels.slice(leftIndex ? leftIndex - 1 : 0, rightIndex)
+    data.datasets = datasets.map(set => ({
+      ...set,
+      data: set.data.slice(leftIndex ? leftIndex - 1 : 0, rightIndex)
+    }))
 
     return data
   }
@@ -115,7 +145,7 @@ export class Graph {
       return
     }
 
-    if (left <= 0) {
+    if (left < 0) {
       this.zoom.style.left = `0px`
       this.left.style.width = `0px`
       return
@@ -182,6 +212,7 @@ export class Graph {
   destroy() {
     this.el.removeEventListener('mousedown', this.mouseDownHandler)
     document.removeEventListener('mouseup', this.mouseUpHandler)
+    this.labels.removeEventListener('click', this.labelsClickHandler)
     this.chart.destroy()
     this.zoomChart.destroy()
     this.el.innerHTML = ''
