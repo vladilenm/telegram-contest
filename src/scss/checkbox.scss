@@ -21,6 +21,10 @@
     padding: 0;
     cursor: pointer;
 
+    &:not(:checked)+ label > .before {
+      background-color: transparent!important;
+    }
+
     &:checked + label > .before {
       border-color: transparent;
       background-color: #3cc23f;

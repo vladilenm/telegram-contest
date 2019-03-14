@@ -4,6 +4,10 @@ export class Tooltip {
   }
 
   show({top, left}, data) {
+    if (!Object.keys(data).length) {
+      return
+    }
+
     this.el.innerHTML = ''
     const {height, width} = this.el.getBoundingClientRect()
     this.el.style.display = 'block'

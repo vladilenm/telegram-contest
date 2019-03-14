@@ -1,6 +1,9 @@
-1. Margins to bottom and top
++ 1. Margins to bottom and top
 2. Zoom logic to component
 3. xAxis and yAxis to grid method
 + 5. get rid of zoomWidth
 + 6. if slider full width -> right slide
 7. Tooltip position
+8. Resize
+9. Margin to common place
+10. Refactor

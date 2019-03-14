@@ -1,4 +1,4 @@
-import {computeRatio, dateFilter, getBoundary, getCoordinates} from './utils'
+import {computeRatio, css, getBoundary, getCoordinates} from './utils'
 import {Draw} from './draw'
 
 export class Chart {
@@ -11,19 +11,21 @@ export class Chart {
     this.data = options.data || {}
     this.isFullChart = typeof options.isMini === 'boolean' ? !options.isMini : true
 
-    this.el.style.width = this.width + 'px'
-    this.el.style.height = this.height + 'px'
+    css(this.el, {
+      width: `${this.width}px`,
+      height: `${this.height}px`
+    })
 
-    const xAxisHeight = 40
+    const margin = 40
     this.dpiWidth = this.width * 2
     this.dpiHeight = this.height * 2
     this.viewWidth = this.dpiWidth
-    this.viewHeight = this.dpiHeight - xAxisHeight
+    this.viewHeight = this.dpiHeight - (this.isFullChart ? margin * 2 : 0)
     this.el.width = this.dpiWidth
     this.el.height = this.dpiHeight
 
     this.draw = new Draw(this.c, this.tooltip)
-    this.mouseEvent = null
+    this.mouse = null
 
     this.render = this.render.bind(this)
     this.mouseMoveHandler = this.mouseMoveHandler.bind(this)
@@ -76,13 +78,13 @@ export class Chart {
 
     this.yMin = min
     this.yMax = max
+
     this.xRatio = xRatio
     this.yRatio = yRatio
   }
 
-  updateData(data) {
+  update(data) {
     this.data = data
-    // this.render()
   }
 
   render() {
@@ -95,26 +97,32 @@ export class Chart {
     this.computeRatio()
 
     if (this.isFullChart) {
-      // const labels = this.data.labels.map(label => dateFilter(label))
-      this.draw.yAxis(this.data, this.dpiWidth, this.dpiHeight, this.xRatio, this.mouseEvent)
-      this.draw.xAxis(this.viewHeight, this.yRatio, this.dpiWidth)
+      this.draw.yAxis(this.data, this.dpiWidth, this.dpiHeight, this.xRatio, this.mouse)
+      this.draw.xAxis(this.dpiWidth, this.viewHeight, this.yMax, this.yMin)
     }
 
     this.data.datasets.forEach(dataset => {
-      const coords = getCoordinates(dataset.data, this.yMin, this.viewHeight, this.xRatio, this.yRatio)
-      this.draw.line(coords, dataset.color, this.mouseEvent, this.dpiWidth, this.isFullChart)
+      const coords = getCoordinates(
+        dataset.data,
+        this.yMin,
+        this.viewHeight,
+        this.xRatio,
+        this.yRatio,
+        this.isFullChart ? 40 : 0
+      )
+      this.draw.line(coords, dataset.color, this.mouse, this.dpiWidth, this.isFullChart)
     })
   }
 
   mouseLeaveHandler() {
     // console.log('mouseLeaveHandler')
-    this.mouseEvent = null
+    this.mouse = null
     this.tooltip.hide()
   }
 
   mouseMoveHandler({clientX, clientY}) {
     const {left, top} = this.el.getBoundingClientRect()
-    this.mouseEvent = {
+    this.mouse = {
       x: (clientX - left) * 2,
       tooltip: {
         top: clientY - top,

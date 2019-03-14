@@ -40,8 +40,8 @@ export function getYValues(datasets) {
 
 export function getBoundary(datasets) {
   const allValues = getYValues(datasets)
-  const min = Math.floor(Math.min.apply(null, allValues)) // * 0.8
-  const max = Math.ceil(Math.max.apply(null, allValues)) // * 1.2
+  const min = Math.floor(Math.min.apply(null, allValues))
+  const max = Math.ceil(Math.max.apply(null, allValues))
 
   return [min, max]
 }
@@ -53,11 +53,11 @@ export function computeRatio(max, min, columnsCount, width, height) {
   return [xRatio, yRatio]
 }
 
-export function getCoordinates(data, min, height, xRatio, yRatio) {
+export function getCoordinates(data, min, height, xRatio, yRatio, margin) {
   return data.map((value, index) => {
     const y = Math.floor(height - ((value - min) / yRatio))
     const x = Math.floor(index * xRatio)
-    return [x, y]
+    return [x, y + margin]
   })
 }
 

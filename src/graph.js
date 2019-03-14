@@ -91,6 +91,7 @@ export class Graph {
       }
     }
     this.updateDetailChart()
+    this.updateZoomChart()
   }
 
   getData() {
@@ -115,6 +116,15 @@ export class Graph {
     return data
   }
 
+  getDataForZoom() {
+    return {
+      datasets: this.data.datasets.filter(set => {
+        return this.activeLabels.includes(set.name)
+      }),
+      labels: this.data.labels.concat()
+    }
+  }
+
   updateDetailChart() {
     if (!this.chart) {
       this.chart = new Chart({
@@ -125,8 +135,12 @@ export class Graph {
         data: this.getData()
       })
     } else {
-      this.chart.updateData(this.getData())
+      this.chart.update(this.getData())
     }
+  }
+
+  updateZoomChart() {
+    this.zoomChart.update(this.getDataForZoom())
   }
 
   getZoomPosition() {
@@ -141,7 +155,8 @@ export class Graph {
 
   setZoomPosition(left, right) {
     const zoomWidth = this.width - right - left
-    if (zoomWidth <= 10) {
+    if (zoomWidth < 20) {
+      this.zoom.style.width = `20px`
       return
     }
 

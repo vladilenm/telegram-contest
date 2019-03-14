@@ -8,4 +8,9 @@ export class ZoomChart extends Chart {
       isMini: true
     })
   }
+
+  update(data) {
+    this.data = data
+    this.render()
+  }
 }

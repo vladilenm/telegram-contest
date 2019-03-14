@@ -13,7 +13,7 @@ export class Draw {
     this.radius = 12
   }
 
-  line(coords, color, mouse, dpiWidth, withCircles = true) {
+  line(coords, color, mouse, dpiWidth, withCircles) {
     this.c.beginPath()
     this.c.moveTo(coords[0][0], coords[0][1])
 
@@ -44,10 +44,10 @@ export class Draw {
     this.c.stroke()
   }
 
-  xAxis(viewHeight, yRatio, dpiWidth) {
+  xAxis(dpiWidth, viewHeight, yMax, yMin) {
     const rowsCount = 5
     const stepY = viewHeight / rowsCount
-    let y = stepY
+    const stepYText = (yMax - yMin) / rowsCount
 
     this.c.fillStyle = this.axisFillStyle
     this.c.font = this.font
@@ -56,12 +56,12 @@ export class Draw {
 
     this.c.beginPath()
 
-    while (y <= viewHeight) {
-      const text = Math.round((viewHeight - y) * yRatio)
-      this.c.fillText(text.toString(), 0, y - 10)
-      this.c.moveTo(0, y)
-      this.c.lineTo(dpiWidth, y)
-      y += stepY
+    for (let i = 1; i <= rowsCount; i++) {
+      const y = stepY * i
+      const text = Math.round(yMax - stepYText * i)
+      this.c.fillText(text.toString(), 0, y - 10 + 40)
+      this.c.moveTo(0, y + 40)
+      this.c.lineTo(dpiWidth, y + 40)
     }
 
     this.c.stroke()
@@ -74,20 +74,20 @@ export class Draw {
     this.c.lineWidth = this.axisLineWidth
 
     this.c.beginPath()
-    this.c.moveTo(0, 0)
+    this.c.moveTo(0, 40)
 
     for (let i = 0; i < data.labels.length; i++) {
       const x = Math.floor(i * xRatio)
 
       // TODO: 5 is magic number now, should be computed from labels
       if (i % 5 === 0) {
-        this.c.fillText(dateFilter(data.labels[i]), x, dpiHeight - 10)
+        this.c.fillText(dateFilter(data.labels[i]), x + 20, dpiHeight - 10)
       }
 
       if (!mouse || Math.abs(x - mouse.x) > ((dpiWidth / data.labels.length) / 2)) {
         continue
       }
-      this.c.moveTo(x, 0)
+      this.c.moveTo(x, 40)
       this.c.lineTo(x, dpiHeight - 40) // 40 xAxis height
 
       this.tooltip.show(mouse.tooltip, {
