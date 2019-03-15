@@ -37,7 +37,6 @@ export class TelegramChart {
     this.data = options.data
     this.w = options.width || 500
     this.h = options.height || 300
-    this.activeLabels = this.data.datasets.map(set => set.name)
 
     this.$el.insertAdjacentHTML('afterbegin', template)
 
@@ -48,6 +47,9 @@ export class TelegramChart {
   prepare() {
     this.labelClickHandler = this.labelClickHandler.bind(this)
     this.updateChart = this.updateChart.bind(this)
+
+    this.activeLabels = this.data.datasets.map(set => set.name)
+    this.prevState = {}
 
     this.$detail = this.$el.querySelector('[data-el=detail]')
     this.$tooltip = this.$el.querySelector('[data-el=tooltip]')
@@ -85,7 +87,9 @@ export class TelegramChart {
   }
 
   updateChart() {
-    this.chart.update(this.getData())
+    if (this.shouldUpdateChart()) {
+      this.chart.update(this.getData())
+    }
   }
 
   updateSlider() {
@@ -104,9 +108,18 @@ export class TelegramChart {
     this.updateSlider()
   }
 
+  shouldUpdateChart() {
+    const [left, right] = this.slider.position
+    return this.prevState.left !== left
+      || this.prevState.right !== right
+      || this.prevState.labelsLength !== this.activeLabels.length
+  }
+
   getData() {
     const data = {datasets: []}
     const [left, right] = this.slider.position
+
+    this.prevState = {left, right, labelsLength: this.activeLabels.length}
 
     const datasets = this.data.datasets.filter(set => {
       return this.activeLabels.includes(set.name)

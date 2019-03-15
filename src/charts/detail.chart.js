@@ -4,36 +4,21 @@ import {BaseChart} from './base.chart'
 export class DetailChart extends BaseChart {
   constructor(options) {
     super(options)
-
-    // Optimization
-
-    // this.proxy = new Proxy(this.data, {
-    //   set(target, prop, value) {
-    //     console.log(target, prop, value)
-    //     target[prop] = value
-    //   },
-    //   get(target, prop) {
-    //     console.log('get')
-    //     return target[prop]
-    //   }
-    // })
-
-    // Object.defineProperty(this, '_data', {
-    //   // value: options.data || {},
-    //   configurable: true,
-    //   enumerable: true,
-    //   // writable: true,
-    //   set(value) {
-    //     this.render()
-    //     console.log('SET', value)
-    //   }
-    // })
   }
 
   prepare() {
     super.prepare()
     this.margin = 40
     this.viewH = this.dpiH - this.margin * 2
+
+    // Optimization
+    this.proxy = new Proxy(this, {
+      set: (...options) => {
+        const result = Reflect.set(...options)
+        this.raf = requestAnimationFrame(this.render)
+        return result
+      }
+    })
 
     this.render = this.render.bind(this)
     this.mouseMoveHandler = this.mouseMoveHandler.bind(this)
@@ -45,9 +30,13 @@ export class DetailChart extends BaseChart {
     this.$el.addEventListener('mouseleave', this.mouseLeaveHandler)
   }
 
+  update(data) {
+    this.proxy.data = data
+  }
+
   render() {
-    // console.log('[Chart]: render')
-    this.raf = requestAnimationFrame(this.render)
+    console.log('[Detail Chart]: render')
+    // this.raf = requestAnimationFrame(this.render)
 
     this.clear()
     this.setup()
@@ -64,13 +53,13 @@ export class DetailChart extends BaseChart {
   }
 
   mouseLeaveHandler() {
-    this.mouse = null
+    this.proxy.mouse = null
     this.tooltip.hide()
   }
 
   mouseMoveHandler({clientX, clientY}) {
     const {left, top} = this.$el.getBoundingClientRect()
-    this.mouse = {
+    this.proxy.mouse = {
       x: (clientX - left) * 2,
       tooltip: {
         top: clientY - top,

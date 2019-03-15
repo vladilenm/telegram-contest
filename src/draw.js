@@ -27,7 +27,6 @@ export class Draw {
 
     if (withCircles) {
       for (let i = 0; i < coords.length; i++) {
-        // if (mouse && Math.abs(mouse.x - coords[i][0]) < dpiW / coords.length / 2) {
         if (mouse && isMouseOver(coords[i][0], mouse.x, dpiW, coords.length)) {
           this.circle(coords[i], color)
           break
@@ -87,7 +86,6 @@ export class Draw {
         this.c.fillText(toDate(data.labels[i]), x + 20, dpiH - 10)
       }
 
-      // if (!mouse || Math.abs(x - mouse.x) > ((dpiW / data.labels.length) / 2)) {
       if (!mouse || !isMouseOver(x, mouse.x, dpiW, data.labels.length)) {
         continue
       }
