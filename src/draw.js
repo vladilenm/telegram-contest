@@ -1,4 +1,4 @@
-import {dateFilter} from './utils';
+import {toDate} from './utils'
 
 export class Draw {
   constructor(context, tooltip) {
@@ -13,7 +13,7 @@ export class Draw {
     this.radius = 12
   }
 
-  line(coords, color, mouse, dpiWidth, withCircles = false) {
+  line(coords, color, mouse, dpiW, withCircles = false) {
     this.c.beginPath()
     this.c.moveTo(coords[0][0], coords[0][1])
 
@@ -27,7 +27,8 @@ export class Draw {
 
     if (withCircles) {
       for (let i = 0; i < coords.length; i++) {
-        if (mouse && Math.abs(mouse.x - coords[i][0]) < dpiWidth / coords.length / 2) {
+        // if (mouse && Math.abs(mouse.x - coords[i][0]) < dpiW / coords.length / 2) {
+        if (mouse && isMouseOver(coords[i][0], mouse.x, dpiW, coords.length)) {
           this.circle(coords[i], color)
           break
         }
@@ -42,12 +43,12 @@ export class Draw {
     this.c.arc(x, y, this.radius, 0, Math.PI * 2)
     this.c.fill()
     this.c.stroke()
+    this.c.closePath()
   }
 
-  xAxis(dpiWidth, viewHeight, yMax, yMin) {
-    const rowsCount = 5
-    const stepY = viewHeight / rowsCount
-    const stepYText = (yMax - yMin) / rowsCount
+  xAxis(dpiW, viewH, yMax, yMin, margin, rowsCount = 5) {
+    const step = Math.round(viewH / rowsCount)
+    const stepText = (yMax - yMin) / rowsCount
 
     this.c.fillStyle = this.axisFillStyle
     this.c.font = this.font
@@ -57,41 +58,45 @@ export class Draw {
     this.c.beginPath()
 
     for (let i = 1; i <= rowsCount; i++) {
-      const y = stepY * i
-      const text = Math.round(yMax - stepYText * i)
-      this.c.fillText(text.toString(), 0, y - 10 + 40)
+      const y = step * i
+      const text = Math.round(yMax - stepText * i)
+      this.c.fillText(text.toString(), 0, y - 10 + margin)
       this.c.moveTo(0, y + 40)
-      this.c.lineTo(dpiWidth, y + 40)
+      this.c.lineTo(dpiW, y + margin)
     }
 
     this.c.stroke()
+    this.c.closePath()
   }
 
-  yAxis(data, dpiWidth, dpiHeight, xRatio, mouse) {
+  yAxis(data, dpiW, dpiH, xRatio, mouse, margin, columnsCount = 6) {
+    const step = Math.round(data.labels.length / columnsCount)
+
     this.c.fillStyle = this.axisFillStyle
     this.c.font = this.font
     this.c.strokeStyle = this.axisStrokeStyle
     this.c.lineWidth = this.axisLineWidth
 
     this.c.beginPath()
-    this.c.moveTo(0, 40)
+    this.c.moveTo(0, margin)
 
     for (let i = 0; i < data.labels.length; i++) {
       const x = Math.floor(i * xRatio)
 
-      // TODO: 5 is magic number now, should be computed from labels
-      if (i % 5 === 0) {
-        this.c.fillText(dateFilter(data.labels[i]), x + 20, dpiHeight - 10)
+      if (i % step === 0) {
+        this.c.fillText(toDate(data.labels[i]), x + 20, dpiH - 10)
       }
 
-      if (!mouse || Math.abs(x - mouse.x) > ((dpiWidth / data.labels.length) / 2)) {
+      // if (!mouse || Math.abs(x - mouse.x) > ((dpiW / data.labels.length) / 2)) {
+      if (!mouse || !isMouseOver(x, mouse.x, dpiW, data.labels.length)) {
         continue
       }
-      this.c.moveTo(x, 40)
-      this.c.lineTo(x, dpiHeight - 40)
+
+      this.c.moveTo(x, margin)
+      this.c.lineTo(x, dpiH - margin)
 
       this.tooltip.show(mouse.tooltip, {
-        title: dateFilter(data.labels[i], true),
+        title: toDate(data.labels[i], true),
         items: data.datasets.map(set => ({
           name: set.name,
           color: set.color,
@@ -101,5 +106,10 @@ export class Draw {
     }
 
     this.c.stroke()
+    this.c.closePath()
   }
+}
+
+function isMouseOver(x, mouse, dpiW, length) {
+  return Math.abs(x - mouse) < dpiW / length / 2
 }

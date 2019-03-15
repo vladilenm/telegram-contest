@@ -1,7 +1,7 @@
 import {DetailChart} from './detail.chart'
 import {SliderChart} from './slider.chart'
-import {Tooltip} from '../tooltip'
-import {LabelCheckbox} from '../label-checkbox'
+import {Tooltip} from '../components/tooltip'
+import {Label} from '../components/label'
 
 const template = `
   <div class="tg-chart">
@@ -47,6 +47,7 @@ export class TelegramChart {
 
   prepare() {
     this.labelClickHandler = this.labelClickHandler.bind(this)
+    this.updateChart = this.updateChart.bind(this)
 
     this.$detail = this.$el.querySelector('[data-el=detail]')
     this.$tooltip = this.$el.querySelector('[data-el=tooltip]')
@@ -61,33 +62,34 @@ export class TelegramChart {
       el: this.$slider,
       width: this.w,
       data: this.data,
-      onUpdate: this.createOrUpdateChart.bind(this),
+      onUpdate: this.updateChart,
       height: 40
     })
 
-    this.createOrUpdateChart()
-    this.renderLabels()
-  }
+    this.chart = new DetailChart({
+      el: this.$detail,
+      width: this.w,
+      height: this.h,
+      tooltip: new Tooltip(this.$tooltip),
+      data: this.getData()
+    })
 
-  createOrUpdateChart() {
-    if (!this.chart) {
-      this.chart = new DetailChart({
-        el: this.$detail,
-        width: this.w,
-        height: this.h,
-        tooltip: new Tooltip(this.$tooltip),
-        data: this.getData()
-      })
-    } else {
-      this.chart.update(this.getData())
-    }
+    this.renderLabels()
   }
 
   renderLabels() {
     const labels = this.data.datasets.map(({name, color}) => {
-      return new LabelCheckbox({name, color}).toHtml()
+      return new Label({name, color}).toHtml()
     }).join(' ')
     this.$labels.insertAdjacentHTML('afterbegin', labels)
+  }
+
+  updateChart() {
+    this.chart.update(this.getData())
+  }
+
+  updateSlider() {
+    this.slider.update(this.getSliderData())
   }
 
   labelClickHandler({target: {value, checked, tagName}}) {
@@ -98,7 +100,7 @@ export class TelegramChart {
         this.activeLabels = this.activeLabels.filter(l => l !== value)
       }
     }
-    this.createOrUpdateChart()
+    this.updateChart()
     this.updateSlider()
   }
 
@@ -130,10 +132,6 @@ export class TelegramChart {
       }),
       labels: this.data.labels.concat()
     }
-  }
-
-  updateSlider() {
-    this.slider.update(this.getSliderData())
   }
 
   destroy() {

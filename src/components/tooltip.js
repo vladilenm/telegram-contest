@@ -1,6 +1,6 @@
 export class Tooltip {
   constructor(el) {
-    this.el = el
+    this.$el = el
   }
 
   show({top, left}, data) {
@@ -8,13 +8,13 @@ export class Tooltip {
       return
     }
 
-    this.el.innerHTML = ''
-    const {height, width} = this.el.getBoundingClientRect()
-    this.el.style.display = 'block'
-    this.el.style.top = `${top - height}px`
-    this.el.style.left = `${left + (width / 2)}px`
+    this.$el.innerHTML = ''
+    const {height, width} = this.$el.getBoundingClientRect()
+    this.$el.style.display = 'block'
+    this.$el.style.top = `${top - height}px`
+    this.$el.style.left = `${left + (width / 2)}px`
 
-    this.el.insertAdjacentHTML('afterbegin', `
+    this.$el.insertAdjacentHTML('afterbegin', `
       <div class="tooltip-title">${data.title}</div>
       <ul class="tooltip-list">
         ${data.items.map(item => {
@@ -28,6 +28,6 @@ export class Tooltip {
   }
 
   hide() {
-    this.el.style.display = 'none'
+    this.$el.style.display = 'none'
   }
 }

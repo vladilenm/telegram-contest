@@ -7,8 +7,23 @@ const chart = new TelegramChart({
   el: document.getElementById('chart'),
   width: 800,
   height: 200,
-  data: transformData(data[0])
+  data: transformData(data[3])
 })
+
+
+// setTimeout(() => {
+//   chart.destroy()
+//
+//   setTimeout(() => {
+//     console.log(data[4])
+//     new TelegramChart({
+//       el: document.getElementById('chart'),
+//       width: 800,
+//       height: 200,
+//       data: transformData(data[4])
+//     })
+//   }, 1000)
+// }, 2000)
 
 // new Graph({
 //   el: document.getElementById('graph2'),

@@ -54,8 +54,8 @@ export class DetailChart extends BaseChart {
 
     const {dpiW, dpiH, xRatio, mouse, viewH, yMax, yMin, yRatio, margin} = this
 
-    this.draw.yAxis(this.data, dpiW, dpiH, xRatio, mouse)
-    this.draw.xAxis(dpiW, viewH, yMax, yMin)
+    this.draw.yAxis(this.data, dpiW, dpiH, xRatio, mouse, margin, 6)
+    this.draw.xAxis(dpiW, viewH, yMax, yMin, margin, 5)
 
     this.data.datasets.forEach(({data, color}) => {
       const coords = getCoordinates(data, yMin, viewH, xRatio, yRatio, margin)

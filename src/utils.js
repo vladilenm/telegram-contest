@@ -1,30 +1,18 @@
-export function getRandom(min, max) {
-  return Math.ceil(Math.random() * (max - min) + min)
-}
-
-export function getCoords(elem) {
-  const box = elem.getBoundingClientRect()
-  return {
-    top: box.top + pageYOffset,
-    left: box.left + pageXOffset
-  }
-}
-
-export function transformData(initialData) {
+export function transformData(data) {
   const datasets = []
   let labels = []
 
-  initialData.columns.forEach(item => {
-    if (item[0] === 'x') {
-      item.shift()
-      labels = item.concat()
+  data.columns.forEach(column => {
+    if (column[0] === 'x') {
+      column.shift()
+      labels = column.concat()
     } else {
-      const type = item.shift()
+      const type = column.shift()
       datasets.push({
-        data: [...item],
-        color: initialData.colors[type],
-        name: initialData.names[type],
-        type: initialData.types[type]
+        data: [...column],
+        color: data.colors[type],
+        name: data.names[type],
+        type: data.types[type]
       })
     }
   })
@@ -32,23 +20,23 @@ export function transformData(initialData) {
   return {labels, datasets}
 }
 
-export function getYValues(datasets) {
+export function getValues(datasets) {
   return datasets.reduce((all, dataset) => {
     return all.concat(dataset.data)
   }, [])
 }
 
 export function getBoundary(datasets) {
-  const allValues = getYValues(datasets)
-  const min = Math.floor(Math.min.apply(null, allValues))
-  const max = Math.ceil(Math.max.apply(null, allValues))
+  const values = getValues(datasets)
+  const min = Math.floor(Math.min.apply(null, values))
+  const max = Math.ceil(Math.max.apply(null, values))
 
   return [min, max]
 }
 
-export function computeRatio(max, min, columnsCount, width, height) {
+export function computeRatio(max, min, length, width, height) {
   const yRatio = (max - min) / height
-  const xRatio = width / (columnsCount - 2)
+  const xRatio = width / (length - 2)
 
   return [xRatio, yRatio]
 }
@@ -64,7 +52,7 @@ export function getCoordinates(data, min, height, xRatio, yRatio, margin = 0) {
 const shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 const shortDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
-export function dateFilter(timestamp, withDay) {
+export function toDate(timestamp, withDay) {
   const date = new Date(timestamp)
   if (withDay) {
     return `${shortDays[date.getDay()]}, ${shortMonths[date.getMonth()]} ${date.getDate()}`

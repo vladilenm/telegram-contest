@@ -1,11 +1,12 @@
-export class LabelCheckbox {
+export class Label {
   constructor(options) {
     this.name = options.name
     this.color = options.color
-    this.checked = options.checked || true
   }
 
   toHtml() {
+    // .begin and .after are not pseudo elements in order
+    // to simplify js manipulate specific colors
     return `
       <div class="chart-check">
         <input type="checkbox" checked value="${this.name}" />
