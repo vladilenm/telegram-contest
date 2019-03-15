@@ -1,12 +1,13 @@
 import data from './data/chart_data'
-import {Graph} from './graph'
+import {TelegramChart} from './charts/telegram.chart'
+import {transformData} from './utils'
 import './scss/index.scss'
 
-new Graph({
-  el: document.getElementById('graph'),
+const chart = new TelegramChart({
+  el: document.getElementById('chart'),
   width: 800,
   height: 200,
-  data: data[0],
+  data: transformData(data[0])
 })
 
 // new Graph({

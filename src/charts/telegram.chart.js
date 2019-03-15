@@ -1,8 +1,7 @@
-import {Chart} from './chart'
-import {ZoomChart} from './zoom-chart'
-import {Tooltip} from './tooltip'
-import {transformData} from './utils'
-import {LabelCheckbox} from './label-checkbox'
+import {DetailChart} from './detail.chart'
+import {SliderChart} from './slider.chart'
+import {Tooltip} from '../tooltip'
+import {LabelCheckbox} from '../label-checkbox'
 
 const template = `
   <div class="graph">
@@ -24,31 +23,31 @@ const template = `
   </div>
 `
 
-export class Graph {
+export class TelegramChart {
   constructor(options) {
     if (!options.el) {
-      throw new Error('[Telegram Chart]: El option must be provided')
+      throw new Error('[Telegram Chart]: "el" option must be provided')
     }
 
     if (!options.data) {
-      throw new Error('[Telegram Chart]: Data option must be provided')
+      throw new Error('[Telegram Chart]: "data" option must be provided')
     }
 
-    this.el = options.el
-    this.data = transformData(options.data)
-    this.width = options.width || 500
-    this.height = options.height || 300
+    this.$el = options.el
+    this.data = options.data
+    this.w = options.width || 500
+    this.h = options.height || 300
     this.activeLabels = this.data.datasets.map(set => set.name)
 
-    this.el.insertAdjacentHTML('afterbegin', template)
-    this.detailGraph = this.el.querySelector('canvas[data-type=gdetail]')
-    this.zoomGraph = this.el.querySelector('canvas[data-type=gzoom]')
-    this.tooltipEl = this.el.querySelector('[data-type=tooltip]')
-    this.labels = this.el.querySelector('[data-type=labels]')
+    this.$el.insertAdjacentHTML('afterbegin', template)
+    this.detailGraph = this.$el.querySelector('canvas[data-type=gdetail]')
+    this.zoomGraph = this.$el.querySelector('canvas[data-type=gzoom]')
+    this.tooltipEl = this.$el.querySelector('[data-type=tooltip]')
+    this.labels = this.$el.querySelector('[data-type=labels]')
 
-    this.left = this.el.querySelector('[data-type=leftm]')
-    this.zoom = this.el.querySelector('[data-type=zoom]')
-    this.right = this.el.querySelector('[data-type=rightm]')
+    this.left = this.$el.querySelector('[data-type=leftm]')
+    this.zoom = this.$el.querySelector('[data-type=zoom]')
+    this.right = this.$el.querySelector('[data-type=rightm]')
 
 
     this.mouseDownHandler = this.mouseDownHandler.bind(this)
@@ -59,18 +58,19 @@ export class Graph {
   }
 
   init() {
-    this.el.addEventListener('mousedown', this.mouseDownHandler)
+    this.$el.addEventListener('mousedown', this.mouseDownHandler)
     this.labels.addEventListener('click', this.labelsClickHandler)
     document.addEventListener('mouseup', this.mouseUpHandler)
 
-    this.zoomChart = new ZoomChart({
+    this.slider = new SliderChart({
       el: this.zoomGraph,
-      width: this.width,
-      data: this.data
+      width: this.w,
+      data: this.data,
+      onUpdate: this.sliderHandler.bind(this)
     })
 
-    const defaultZoomWidth = this.width * 3 / 10 // 30% by default
-    this.setZoomPosition(this.width - defaultZoomWidth, 0)
+    const defaultZoomWidth = this.w * 3 / 10 // 30% by default
+    this.setZoomPosition(this.w - defaultZoomWidth, 0)
 
     this.renderLabels()
   }
@@ -127,10 +127,10 @@ export class Graph {
 
   updateDetailChart() {
     if (!this.chart) {
-      this.chart = new Chart({
+      this.chart = new DetailChart({
         el: this.detailGraph,
-        width: this.width,
-        height: this.height,
+        width: this.w,
+        height: this.h,
         tooltip: new Tooltip(this.tooltipEl),
         data: this.getData()
       })
@@ -139,22 +139,26 @@ export class Graph {
     }
   }
 
+  sliderHandler() {
+    console.log('updated')
+  }
+
   updateZoomChart() {
-    this.zoomChart.update(this.getDataForZoom())
+    this.slider.update(this.getDataForZoom())
   }
 
   getZoomPosition() {
     const leftPx = parseInt(this.left.style.width)
-    const rightPx = this.width - parseInt(this.right.style.width)
+    const rightPx = this.w - parseInt(this.right.style.width)
 
     return [
-      leftPx * 100 / this.width,
-      rightPx * 100 / this.width
+      leftPx * 100 / this.w,
+      rightPx * 100 / this.w
     ]
   }
 
   setZoomPosition(left, right) {
-    const zoomWidth = this.width - right - left
+    const zoomWidth = this.w - right - left
     if (zoomWidth < 20) {
       this.zoom.style.width = `20px`
       return
@@ -197,7 +201,7 @@ export class Graph {
           return
         }
         const left = zoom.left - delta
-        const right = this.width - left - zoom.width
+        const right = this.w - left - zoom.width
         this.setZoomPosition(left, right)
       }
     } else if (type === 'left' || type === 'right') {
@@ -209,11 +213,11 @@ export class Graph {
           return
         }
         if (type === 'left') {
-          const left = this.width - (zoomWidth + delta) - zoom.right
-          const right = this.width - (zoomWidth + delta) - left
+          const left = this.w - (zoomWidth + delta) - zoom.right
+          const right = this.w - (zoomWidth + delta) - left
           this.setZoomPosition(left, right)
-        } else if (type === 'right') {
-          const right = this.width - (zoomWidth - delta) - zoom.left
+        } else {
+          const right = this.w - (zoomWidth - delta) - zoom.left
           this.setZoomPosition(zoom.left, right)
         }
       }
@@ -225,11 +229,11 @@ export class Graph {
   }
 
   destroy() {
-    this.el.removeEventListener('mousedown', this.mouseDownHandler)
+    this.$el.removeEventListener('mousedown', this.mouseDownHandler)
     document.removeEventListener('mouseup', this.mouseUpHandler)
     this.labels.removeEventListener('click', this.labelsClickHandler)
     this.chart.destroy()
-    this.zoomChart.destroy()
-    this.el.innerHTML = ''
+    this.slider.destroy()
+    this.$el.innerHTML = ''
   }
 }

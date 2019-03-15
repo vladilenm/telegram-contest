@@ -53,7 +53,7 @@ export function computeRatio(max, min, columnsCount, width, height) {
   return [xRatio, yRatio]
 }
 
-export function getCoordinates(data, min, height, xRatio, yRatio, margin) {
+export function getCoordinates(data, min, height, xRatio, yRatio, margin = 0) {
   return data.map((value, index) => {
     const y = Math.floor(height - ((value - min) / yRatio))
     const x = Math.floor(index * xRatio)

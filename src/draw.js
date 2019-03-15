@@ -13,7 +13,7 @@ export class Draw {
     this.radius = 12
   }
 
-  line(coords, color, mouse, dpiWidth, withCircles) {
+  line(coords, color, mouse, dpiWidth, withCircles = false) {
     this.c.beginPath()
     this.c.moveTo(coords[0][0], coords[0][1])
 
@@ -88,7 +88,7 @@ export class Draw {
         continue
       }
       this.c.moveTo(x, 40)
-      this.c.lineTo(x, dpiHeight - 40) // 40 xAxis height
+      this.c.lineTo(x, dpiHeight - 40)
 
       this.tooltip.show(mouse.tooltip, {
         title: dateFilter(data.labels[i], true),
