@@ -77,3 +77,5 @@ export function css(el, styles = {}) {
     el.style[style] = styles[style]
   })
 }
+
+export function noop() {}

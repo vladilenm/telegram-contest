@@ -1,16 +1,17 @@
-import {computeRatio, css, getBoundary, getCoordinates} from '../utils'
+import {computeRatio, css, getBoundary, getCoordinates, noop} from '../utils'
 import {Draw} from '../draw'
 
 export class BaseChart {
   constructor(options) {
-    this.el = options.el
-    this.c = this.el.getContext('2d')
+    this.$el = options.el
+    this.c = this.$el.getContext('2d')
     this.w = options.width
     this.h = options.height
     this.tooltip = options.tooltip
     this.data = options.data || {}
+    this.trigger = options.onUpdate || noop
 
-    css(this.el, {
+    css(this.$el, {
       width: `${this.w}px`,
       height: `${this.h}px`
     })
@@ -19,19 +20,19 @@ export class BaseChart {
     this.dpiH = this.h * 2
     this.viewW = this.dpiW
     this.viewH = this.dpiH
-    this.el.width = this.dpiW
-    this.el.height = this.dpiH
-    this.mouse = null
+    this.$el.width = this.dpiW
+    this.$el.height = this.dpiH
     this.draw = new Draw(this.c, this.tooltip)
-
-    this.render = this.render.bind(this)
+    this.mouse = null
 
     this.prepare()
     this.init()
     this.raf = requestAnimationFrame(this.render)
   }
 
-  prepare() {}
+  prepare() {
+    this.render = this.render.bind(this)
+  }
 
   init() {}
 
@@ -52,7 +53,9 @@ export class BaseChart {
     this.yRatio = yRatio
   }
 
-  update(data) {}
+  update(data) {
+    this.data = data
+  }
 
   render() {
     this.clear()

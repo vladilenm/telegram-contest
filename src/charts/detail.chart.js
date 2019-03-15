@@ -31,6 +31,7 @@ export class DetailChart extends BaseChart {
   }
 
   prepare() {
+    super.prepare()
     this.margin = 40
     this.viewH = this.dpiH - this.margin * 2
 
@@ -40,12 +41,8 @@ export class DetailChart extends BaseChart {
   }
 
   init() {
-    this.el.addEventListener('mousemove', this.mouseMoveHandler, true)
-    this.el.addEventListener('mouseleave', this.mouseLeaveHandler)
-  }
-
-  update(data) {
-    this.data = data
+    this.$el.addEventListener('mousemove', this.mouseMoveHandler, true)
+    this.$el.addEventListener('mouseleave', this.mouseLeaveHandler)
   }
 
   render() {
@@ -72,7 +69,7 @@ export class DetailChart extends BaseChart {
   }
 
   mouseMoveHandler({clientX, clientY}) {
-    const {left, top} = this.el.getBoundingClientRect()
+    const {left, top} = this.$el.getBoundingClientRect()
     this.mouse = {
       x: (clientX - left) * 2,
       tooltip: {
@@ -84,8 +81,8 @@ export class DetailChart extends BaseChart {
 
   destroy() {
     super.destroy()
-    this.el.removeEventListener('mousemove', this.mouseMoveHandler)
-    this.el.removeEventListener('mouseleave', this.mouseLeaveHandler)
+    this.$el.removeEventListener('mousemove', this.mouseMoveHandler)
+    this.$el.removeEventListener('mouseleave', this.mouseLeaveHandler)
   }
 }
 
