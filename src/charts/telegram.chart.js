@@ -78,6 +78,8 @@ export class TelegramChart {
     })
 
     this.renderLabels()
+
+    // Preventing initial css animations
     setTimeout(() => {
       document.body.classList.remove('tg-chart-preload')
     }, 500)
@@ -155,6 +157,7 @@ export class TelegramChart {
     this.$labels.removeEventListener('click', this.labelClickHandler)
     this.chart.destroy()
     this.slider.destroy()
+    document.body.classList.remove('tg-chart-preload')
     this.$el.innerHTML = ''
   }
 }
