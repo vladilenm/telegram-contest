@@ -23,7 +23,8 @@
 
     &:checked + label > span {
       border: 9px solid;
-      animation: pulse 1.3s;
+      animation-name: pulse;
+      animation-duration: 1.3s;
     }
 
     &:checked + label > span:before {
@@ -35,7 +36,12 @@
       border-right: 2px solid transparent;
       transform: rotate(45deg);
       transform-origin: 0 100%;
-      animation: checkbox-check 125ms 250ms cubic-bezier(.4, .0, .23, 1) forwards;
+      animation-name: checkbox-check;
+      animation-duration: 125ms;
+      animation-delay: 250ms;
+      animation-timing-function: cubic-bezier(.4, .0, .23, 1);
+      animation-fill-mode: forwards;
+      //animation: checkbox-check 125ms 250ms cubic-bezier(.4, .0, .23, 1) forwards;
     }
   }
 
@@ -56,11 +62,25 @@
       top: -2px;
       background-color: transparent;
       transition: all 250ms cubic-bezier(.4, .0, .23, 1);
+      animation-name: pulse2;
+      animation-duration: 1.3s;
     }
   }
 }
 
 @keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(230, 236, 240, 1);
+  }
+  50% {
+    box-shadow: 0 0 0 35px rgba(230, 236, 240, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(230, 236, 240, 0);
+  }
+}
+
+@keyframes pulse2 {
   0% {
     box-shadow: 0 0 0 0 rgba(230, 236, 240, 1);
   }

@@ -58,6 +58,7 @@ export class TelegramChart {
   }
 
   init() {
+    document.body.classList.add('tg-chart-preload')
     this.$labels.addEventListener('click', this.labelClickHandler)
 
     this.slider = new SliderChart({
@@ -77,6 +78,9 @@ export class TelegramChart {
     })
 
     this.renderLabels()
+    setTimeout(() => {
+      document.body.classList.remove('tg-chart-preload')
+    }, 500)
   }
 
   renderLabels() {
@@ -87,7 +91,7 @@ export class TelegramChart {
   }
 
   updateChart() {
-    if (this.shouldUpdateChart()) {
+    if (this.shouldChartUpdate()) {
       this.chart.update(this.getData())
     }
   }
@@ -108,7 +112,7 @@ export class TelegramChart {
     this.updateSlider()
   }
 
-  shouldUpdateChart() {
+  shouldChartUpdate() {
     const [left, right] = this.slider.position
     return this.prevState.left !== left
       || this.prevState.right !== right

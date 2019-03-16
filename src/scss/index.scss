@@ -29,6 +29,14 @@
   flex-direction: column;
 }
 
+body.tg-chart-preload .tg-chart-checkbox  {
+  & span, & span:before {
+    animation-duration: 0s !important;
+    transition: border 0s !important;
+  }
+
+}
+
 .tg-chart {
   position: relative;
 
