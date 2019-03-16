@@ -116,7 +116,7 @@ export class TelegramChart {
   }
 
   getData() {
-    const data = {datasets: []}
+    const data = {}
     const [left, right] = this.slider.position
 
     this.prevState = {left, right, labelsLength: this.activeLabels.length}

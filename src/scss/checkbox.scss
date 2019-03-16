@@ -1,4 +1,4 @@
-.chart-check {
+.tg-chart-checkbox {
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -21,18 +21,21 @@
     padding: 0;
     cursor: pointer;
 
-    &:not(:checked)+ label > .before {
-      background-color: transparent!important;
+    &:checked + label > span {
+      border: 9px solid;
+      animation: pulse 1.3s;
     }
 
-    &:checked + label > .before {
-      border-color: transparent;
-      background-color: #3cc23f;
-      animation: pulse 1s;
-    }
-
-    &:checked + label > .after {
-      opacity: 1;
+    &:checked + label > span:before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      border-bottom: 2px solid transparent;
+      border-right: 2px solid transparent;
+      transform: rotate(45deg);
+      transform-origin: 0 100%;
+      animation: checkbox-check 125ms 250ms cubic-bezier(.4, .0, .23, 1) forwards;
     }
   }
 
@@ -42,43 +45,44 @@
     font-size: .8rem;
     text-indent: 2rem;
 
-    > .before {
-      content: '';
+    > span {
+      position: absolute;
       width: 18px;
       height: 18px;
       border-radius: 50%;
       border: 1px solid;
-      border-color: #3cc23f;
       z-index: 0;
-      position: absolute;
       left: -2px;
-      top: calc((0% - (100% - 1em)) - 8%);
+      top: -2px;
       background-color: transparent;
-    }
-
-    > .after {
-      position: absolute;
-      left: 5px;
-      top: 1px;
-      display: inline-block;
-      transform: rotate(45deg);
-      height: 8px;
-      width: 4px;
-      border-bottom: 2px solid #fff;
-      border-right: 2px solid #fff;
-      opacity: 0;
+      transition: all 250ms cubic-bezier(.4, .0, .23, 1);
     }
   }
 }
 
 @keyframes pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(60, 194, 63, 0.82);
+    box-shadow: 0 0 0 0 rgba(230, 236, 240, 1);
   }
   50% {
-    box-shadow: 0 0 0 15px rgba(204, 169, 44, 0);
+    box-shadow: 0 0 0 35px rgba(230, 236, 240, 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(204, 169, 44, 0);
+    box-shadow: 0 0 0 0 rgba(230, 236, 240, 0);
+  }
+}
+
+@keyframes checkbox-check {
+  0% {
+    border-color: #fff;
+  }
+  33% {
+    width: 4px;
+    height: 0;
+  }
+  100% {
+    width: 4px;
+    height: 8px;
+    border-color: #fff;
   }
 }

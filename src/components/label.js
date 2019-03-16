@@ -7,16 +7,20 @@ export class Label {
   toHtml() {
     // .begin and .after are not pseudo elements in order
     // to simplify js manipulate specific colors
+    const id = `tg-check-${this.color}-${this.name}`
     return `
-      <div class="chart-check">
-        <input type="checkbox" checked value="${this.name}" />
-        <label>
-          <span 
-            class="before" 
-            style="background-color: ${this.color}; border-color: ${this.color}"
+      <div class="tg-chart-checkbox">
+        <input 
+          id="${id}" 
+          type="checkbox" 
+          value="${this.name}" 
+          checked
+        />
+        <label for="${id}">
+          <span
+            style="border-color: ${this.color}"
           ></span>
           ${this.name}
-          <span class="after"></span>
         </label>
       </div>
     `

@@ -6,7 +6,7 @@ import './scss/index.scss'
 
 const chart = new TelegramChart({
   el: document.getElementById('chart'),
-  width: 800,
+  width: 500,
   height: 200,
   data: transformData(data[3])
 })
