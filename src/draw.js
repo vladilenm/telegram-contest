@@ -71,7 +71,7 @@ export class Draw {
     this.c.closePath()
   }
 
-  xAxis({data, visibleData, dpiW, dpiH, xRatio, mouse, margin, pos, translateX}) {
+  xAxis({data, visibleData, activeLabels, dpiW, dpiH, xRatio, mouse, margin, pos, translateX}) {
     this.c.fillStyle = this.theme.gridTextColor
     this.c.font = this.theme.font
     this.c.strokeStyle = this.theme.gridActiveLineColor
@@ -113,11 +113,13 @@ export class Draw {
 
       this.tooltip.show(mouse.tooltip, {
         title: toDate(data.labels[i], true),
-        items: data.datasets.map(set => ({
-          name: set.name,
-          color: set.color,
-          value: set.data[i]
-        }))
+        items: data.datasets
+          .filter(s => activeLabels.includes(s.name))
+          .map(set => ({
+            name: set.name,
+            color: set.color,
+            value: set.data[i]
+          }))
       })
     }
 

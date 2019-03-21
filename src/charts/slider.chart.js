@@ -34,7 +34,6 @@ export class SliderChart extends BaseChart {
     css(this.$right, {background: theme.sliderBackground})
     css(this.$right.querySelector('[data-el=arrow]'), {background: theme.sliderArrow})
     css(this.$left.querySelector('[data-el=arrow]'), {background: theme.sliderArrow})
-    css(this.$window, {borderColor: theme.sliderArrow})
   }
 
   update(data) {

@@ -154,11 +154,16 @@ export class DetailChart extends BaseChart {
       data: this.data,
       visibleData: this.visibleData,
       pos: this.pos,
+      activeLabels: this.activeLabels,
       dpiW, dpiH, xRatio, mouse, margin,
-      translateX: this.translateX
+      translateX: this.translateX,
     })
 
     this.data.datasets.forEach(({data, color, name}) => {
+      if (this.shouldSkipLine(name)) {
+        return
+      }
+
       const coords = getCoordinates(data, yMin, viewH, xRatio, yRatio, margin)
       this.updateOpacityFor(name)
 
@@ -170,6 +175,10 @@ export class DetailChart extends BaseChart {
         visibleItemsCount: this.visibleData.labels.length
       })
     })
+  }
+
+  shouldSkipLine(name) {
+    return this.lines[name].opacity <= 0 && this.lines[name].step === 0
   }
 
   updateOpacityFor(name) {

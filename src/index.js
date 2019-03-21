@@ -12,7 +12,7 @@ const chart = new TelegramChart({
   theme: themes.day
 })
 
-
+// Theme switcher
 document.querySelector('#theme-switch').addEventListener('click', event => {
   event.preventDefault()
   const theme = event.target.dataset.theme
