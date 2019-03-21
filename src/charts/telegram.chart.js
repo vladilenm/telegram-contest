@@ -74,9 +74,10 @@ export class TelegramChart {
       width: this.w,
       height: this.h,
       tooltip: new Tooltip(this.$tooltip),
-      data: this.getData()
+      data: this.data
     })
 
+    this.updateChart()
     this.renderLabels()
 
     // Preventing initial css animations
@@ -86,32 +87,40 @@ export class TelegramChart {
   }
 
   renderLabels() {
-    const labels = this.data.datasets.map(({name, color}) => {
-      return new Label({name, color}).toHtml()
-    }).join(' ')
+    const labels = this.data.datasets.map(set => new Label(set).toHtml()).join(' ')
     this.$labels.insertAdjacentHTML('afterbegin', labels)
   }
 
   updateChart() {
     if (this.shouldChartUpdate()) {
-      this.chart.update(this.getData())
+      const [left, right] = this.slider.position
+      this.prevState = {left, right, labelsLength: this.activeLabels.length}
+      this.chart.updatePosition({left, right})
     }
   }
 
-  updateSlider() {
-    this.slider.update(this.getSliderData())
-  }
-
-  labelClickHandler({target: {value, checked, tagName}}) {
-    if (tagName.toLowerCase() === 'input') {
-      if (checked) {
-        this.activeLabels.push(value)
-      } else {
-        this.activeLabels = this.activeLabels.filter(l => l !== value)
-      }
+  labelClickHandler({target}) {
+    if (target.tagName.toLowerCase() !== 'input') {
+      return
     }
-    this.updateChart()
-    this.updateSlider()
+
+    let type = ''
+    if (target.checked) {
+      type = 'added'
+      this.activeLabels.push(target.value)
+    } else if (this.activeLabels.length > 1) {
+      type = 'removed'
+      this.activeLabels = this.activeLabels.filter(l => l !== target.value)
+    } else {
+      target.checked = !target.checked
+    }
+
+    if (this.shouldChartUpdate()) {
+      this.prevState.labelsLength = this.activeLabels.length
+
+      this.slider.update(this.getData())
+      this.chart.update({type, name: target.value, labels: this.activeLabels})
+    }
   }
 
   shouldChartUpdate() {
@@ -122,33 +131,8 @@ export class TelegramChart {
   }
 
   getData() {
-    const data = {}
-    const [left, right] = this.slider.position
-
-    this.prevState = {left, right, labelsLength: this.activeLabels.length}
-
-    const datasets = this.data.datasets.filter(set => {
-      return this.activeLabels.includes(set.name)
-    })
-    const labels = this.data.labels.concat()
-
-    const leftIndex = Math.ceil(labels.length * left / 100)
-    const rightIndex = Math.ceil(labels.length * right / 100)
-
-    data.labels = labels.slice(leftIndex ? leftIndex - 1 : 0, rightIndex)
-    data.datasets = datasets.map(set => ({
-      ...set,
-      data: set.data.slice(leftIndex ? leftIndex - 1 : 0, rightIndex)
-    }))
-
-    return data
-  }
-
-  getSliderData() {
     return {
-      datasets: this.data.datasets.filter(set => {
-        return this.activeLabels.includes(set.name)
-      }),
+      datasets: this.data.datasets.filter(set => this.activeLabels.includes(set.name)),
       labels: this.data.labels.concat()
     }
   }

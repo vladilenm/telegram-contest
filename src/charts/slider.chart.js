@@ -104,8 +104,8 @@ export class SliderChart extends BaseChart {
     const rightPx = this.w - parseInt(this.$right.style.width)
 
     return [
-      leftPx * 100 / this.w,
-      rightPx * 100 / this.w
+      Math.ceil(leftPx * 100 / this.w),
+      Math.floor(rightPx * 100 / this.w)
     ]
   }
 

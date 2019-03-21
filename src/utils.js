@@ -34,14 +34,14 @@ export function getBoundary(datasets) {
   return [min, max]
 }
 
-export function computeRatio(max, min, length, width, height) {
-  const yRatio = (max - min) / height
+export function computeRatio(delta, length, width, height) {
+  const yRatio = delta / height
   const xRatio = width / (length - 2)
 
   return [xRatio, yRatio]
 }
 
-export function getCoordinates(data, min, height, xRatio, yRatio, margin = 0) {
+export function getCoordinates(data, min, height, xRatio, yRatio, margin) {
   return data.map((value, index) => {
     const y = Math.floor(height - ((value - min) / yRatio))
     const x = Math.floor(index * xRatio)
@@ -66,4 +66,36 @@ export function css(el, styles = {}) {
   })
 }
 
+export function group(array, size) {
+  const result = []
+
+  const step = Math.floor(array.length / size)
+  for (let index = 0; index < array.length; index += step) {
+    result.push(array.slice(index, index + size))
+  }
+
+  return result
+}
+
 export function noop() {}
+
+export function computeDy({max, min, oldMax, speed}) {
+  const delta = max - oldMax
+  return Math.abs(delta) > (max - min) / speed
+    ? delta / speed
+    : delta
+}
+
+export function isMouseOver(x, mouse, dpiW, length) {
+  return Math.abs(x - mouse) < dpiW / length / 2
+}
+
+export function hexToRgb(hex, opacity = 1) {
+  const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i
+  hex = hex.replace(shorthandRegex, (m, r, g, b) => {
+    return r + r + g + g + b + b
+  })
+
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+  return `rgba(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}, ${opacity})`
+}

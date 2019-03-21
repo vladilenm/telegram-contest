@@ -39,8 +39,7 @@ export class BaseChart {
   setup() {
     const [min, max] = getBoundary(this.data.datasets)
     const [xRatio, yRatio] = computeRatio(
-      max,
-      min,
+      max - min,
       this.data.labels.length,
       this.viewW,
       this.viewH
@@ -53,9 +52,7 @@ export class BaseChart {
     this.yRatio = yRatio
   }
 
-  update(data) {
-    this.data = data
-  }
+  update(data) {}
 
   render() {
     this.clear()
@@ -65,7 +62,7 @@ export class BaseChart {
 
     this.data.datasets.forEach(({data, color}) => {
       const coords = getCoordinates(data, yMin, viewH, xRatio, yRatio, 0)
-      this.draw.line(coords, color, mouse, dpiW)
+      this.draw.line({coords, color, mouse, dpiW, opacity: 1})
     })
   }
 

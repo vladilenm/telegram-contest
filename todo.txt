@@ -1,11 +1,6 @@
-+ 1. Margins to bottom and top
-+ 2. Zoom logic to component
-+ 5. get rid of zoomWidth
-+ 6. if slider full width -> right slide
-7. Tooltip position + hover
+
+7. Tooltip position + hover + styles
 8. Resize
-+ 9. Margin to common place
-+ 10. Refactor
 11. Change theme
 12. Optimize
 13. y labels z index
