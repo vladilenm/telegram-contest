@@ -2,24 +2,26 @@ import {DetailChart} from './detail.chart'
 import {SliderChart} from './slider.chart'
 import {Tooltip} from '../components/tooltip'
 import {Label} from '../components/label'
+import themes from '../themes'
+import {css} from '../utils';
 
 const template = `
   <div class="tg-chart">
-    <div class="tg-chart-tooltip" data-el="tooltip"></div>
+    <div data-el="tooltip" class="tg-chart-tooltip"></div>
     <canvas data-el="detail"></canvas>
     <div class="tg-chart-slider" data-el="slider">
       <canvas></canvas>
       <div data-el="left" class="tg-chart-slider__left">
-        <div class="tg-chart-slider__arrow--left" data-type="left"></div>
+        <div class="tg-chart-slider__arrow--left" data-el="arrow" data-type="left"></div>
       </div>
       
       <div data-el="window" data-type="window" class="tg-chart-slider__window"></div>
       
       <div data-el="right" class="tg-chart-slider__right">
-        <div class="tg-chart-slider__arrow--right" data-type="right"></div>
+        <div class="tg-chart-slider__arrow--right" data-el="arrow" data-type="right"></div>
       </div>
     </div>
-    <div class="tg-chart-labels" data-el="labels"></div>
+    <div data-el="labels"></div>
   </div>
 `
 
@@ -35,6 +37,7 @@ export class TelegramChart {
 
     this.$el = options.el
     this.data = options.data
+    this.theme = options.theme || themes.day
     this.w = options.width || 500
     this.h = options.height || 300
 
@@ -49,10 +52,10 @@ export class TelegramChart {
     this.updateChart = this.updateChart.bind(this)
 
     this.activeLabels = this.data.datasets.map(set => set.name)
+    this.tooltip = new Tooltip(this.$el.querySelector('[data-el=tooltip]'), this.theme)
     this.prevState = {}
 
     this.$detail = this.$el.querySelector('[data-el=detail]')
-    this.$tooltip = this.$el.querySelector('[data-el=tooltip]')
     this.$slider = this.$el.querySelector('[data-el=slider]')
     this.$labels = this.$el.querySelector('[data-el=labels]')
   }
@@ -66,6 +69,7 @@ export class TelegramChart {
       width: this.w,
       data: this.data,
       onUpdate: this.updateChart,
+      theme: this.theme,
       height: 40
     })
 
@@ -73,10 +77,12 @@ export class TelegramChart {
       el: this.$detail,
       width: this.w,
       height: this.h,
-      tooltip: new Tooltip(this.$tooltip),
-      data: this.data
+      tooltip: this.tooltip,
+      data: this.data,
+      theme: this.theme
     })
 
+    this.updateTheme()
     this.updateChart()
     this.renderLabels()
 
@@ -84,6 +90,23 @@ export class TelegramChart {
     setTimeout(() => {
       document.body.classList.remove('tg-chart-preload')
     }, 500)
+  }
+
+  setTheme(theme) {
+    this.theme = theme
+    this.updateTheme()
+  }
+
+  updateTheme() {
+    this.slider.updateTheme(this.theme)
+    this.tooltip.updateTheme(this.theme)
+    this.chart.updateTheme(this.theme)
+    this.$labels.querySelectorAll('.tg-chart-checkbox').forEach($label => {
+      css($label, {
+        color: this.theme.checkboxColor,
+        borderColor: this.theme.checkboxBorder
+      })
+    })
   }
 
   renderLabels() {

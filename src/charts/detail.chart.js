@@ -129,6 +129,11 @@ export class DetailChart extends BaseChart {
     return this.dy || !opacityFinished
   }
 
+  updateTheme(theme) {
+    this.draw.updateTheme(theme)
+    this.raf = requestAnimationFrame(this.render)
+  }
+
   render() {
     console.log('[Detail Chart]: render')
     if (this.shouldAnimate()) {
@@ -154,9 +159,6 @@ export class DetailChart extends BaseChart {
     })
 
     this.data.datasets.forEach(({data, color, name}) => {
-      this.c.save()
-      this.c.translate(this.translateX, 0)
-
       const coords = getCoordinates(data, yMin, viewH, xRatio, yRatio, margin)
       this.updateOpacityFor(name)
 
@@ -167,8 +169,6 @@ export class DetailChart extends BaseChart {
         withCircles: true,
         visibleItemsCount: this.visibleData.labels.length
       })
-
-      this.c.restore()
     })
   }
 

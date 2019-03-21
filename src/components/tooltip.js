@@ -1,6 +1,18 @@
+import {css} from '../utils'
+
 export class Tooltip {
-  constructor(el) {
+  constructor(el, theme) {
     this.$el = el
+    this.theme = theme
+  }
+
+  updateTheme(theme) {
+    css(this.$el, {
+      background: theme.tooltipBackground,
+      borderColor: theme.tooltipBorder,
+      boxShadow: theme.tooltipShadow,
+      color: theme.tooltipColor
+    })
   }
 
   show({top, left}, data) {

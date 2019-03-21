@@ -8,6 +8,7 @@ export class BaseChart {
     this.w = options.width
     this.h = options.height
     this.tooltip = options.tooltip
+    // this.theme = options.theme
     this.data = options.data || {}
     this.trigger = options.onUpdate || noop
 
@@ -22,7 +23,7 @@ export class BaseChart {
     this.viewH = this.dpiH
     this.$el.width = this.dpiW
     this.$el.height = this.dpiH
-    this.draw = new Draw(this.c, this.tooltip)
+    this.draw = new Draw(this.c, this.tooltip, options.theme)
     this.mouse = null
 
     this.prepare()
@@ -53,6 +54,8 @@ export class BaseChart {
   }
 
   update(data) {}
+
+  updateTheme(theme) {}
 
   render() {
     this.clear()

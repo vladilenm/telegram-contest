@@ -13,16 +13,20 @@
   padding: 0;
 }
 
-//body {
-//  display: flex;
-//  padding-top: 2rem;
-//  flex-wrap: wrap;
-//  justify-content: space-around;
-//}
+.theme-button {
+  display: flex;
+  justify-content: center;
+
+  a {
+    color: #36a8f1;
+    text-decoration: none;
+    font-size: 1.2rem;
+    font-weight: normal;
+  }
+}
 
 .chart-wrap {
   width: 100%;
-  height: 100vh;
   padding-top: 2rem;
   display: flex;
   align-items: center;
@@ -34,7 +38,14 @@ body.tg-chart-preload .tg-chart-checkbox  {
     animation-duration: 0s !important;
     transition: border 0s !important;
   }
+}
 
+body {
+  transition: background .22s ease-in-out;
+}
+
+body.tg-night {
+  background: #242f3e;
 }
 
 .tg-chart {
@@ -50,6 +61,7 @@ body.tg-chart-preload .tg-chart-checkbox  {
     z-index: 1;
 
     &__right, &__left {
+      transition: background .22s ease-in-out;
       background: #f5f9fb;
       opacity: .8;
       position: absolute;
@@ -69,6 +81,7 @@ body.tg-chart-preload .tg-chart-checkbox  {
       position: absolute;
       top: 0;
       bottom: 0;
+      transition: background .22s ease-in-out;
       background: #ddeaf3;
       width: 4px;
     }
@@ -84,7 +97,10 @@ body.tg-chart-preload .tg-chart-checkbox  {
     }
 
     &__window {
+      transition: border .22s ease-in-out;
       position: absolute;
+      border-top: 2px solid #ddeaf3;
+      border-bottom: 2px solid #ddeaf3;
       background: transparent;
       top: 0;
       bottom: 0;
@@ -101,6 +117,7 @@ body.tg-chart-preload .tg-chart-checkbox  {
     border: 1px solid #dfe6eb;
     box-shadow: 1px 1px 1px rgba(0,0,0,.05);
     background: #fff;
+    color: #000;
     overflow: hidden;
     z-index: 3;
 
@@ -133,10 +150,6 @@ body.tg-chart-preload .tg-chart-checkbox  {
         font-weight: bold;
       }
     }
-  }
-
-  .tg-chart-labels {
-
   }
 }
 

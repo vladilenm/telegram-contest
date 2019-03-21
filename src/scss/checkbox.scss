@@ -7,6 +7,7 @@
   border: 1px solid #e6ecf0;
   padding: .5rem .8rem .5rem .5rem;
   border-radius: 20px;
+  transition: border-color,color .22s ease-in-out;
 
   input {
     position: absolute;

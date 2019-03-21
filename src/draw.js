@@ -1,23 +1,23 @@
 import {group, hexToRgb, isMouseOver, toDate} from './utils'
 
 export class Draw {
-  constructor(context, tooltip) {
+  constructor(context, tooltip, theme) {
     this.c = context
     this.tooltip = tooltip
+    this.theme = theme
+  }
 
-    this.font = 'normal 20px Helvetica,sans-serif'
-    this.strokeStyle = 'rgba(223, 230, 235)'
-    this.fillStyle = '#96a2aa'
-    this.lineWidth = 2
-
-    this.radius = 12
+  updateTheme(theme) {
+    this.theme = theme
   }
 
   line({coords, color, opacity, mouse, dpiW, translateX, withCircles, visibleItemsCount}) {
     this.c.beginPath()
+    this.c.save()
+    this.c.translate(translateX, 0)
     this.c.moveTo(coords[0][0], coords[0][1])
 
-    this.c.lineWidth = 4
+    this.c.lineWidth = this.theme.lineWidth
     this.c.strokeStyle = hexToRgb(color, opacity)
 
     coords.forEach(([x, y]) => this.c.lineTo(x, y))
@@ -33,28 +33,29 @@ export class Draw {
         }
       }
     }
+    this.c.restore()
   }
 
   circle([x, y], color) {
     this.c.beginPath()
     this.c.strokeStyle = color
-    this.c.fillStyle = '#fff'
-    this.c.arc(x, y, this.radius, 0, Math.PI * 2)
+    this.c.fillStyle = this.theme.gridBackground
+    this.c.arc(x, y, this.theme.circleRadius, 0, Math.PI * 2)
     this.c.fill()
     this.c.stroke()
     this.c.closePath()
   }
 
   yAxis({dpiW, viewH, yMax, yMin, margin, rowsCount = 5}) {
-    this.c.save()
-    this.c.fillStyle = this.fillStyle
-    this.c.font = this.font
-    this.c.strokeStyle = this.strokeStyle
-    this.c.lineWidth = this.lineWidth
+    this.c.fillStyle = this.theme.gridTextColor
+    this.c.font = this.theme.font
+    this.c.strokeStyle = this.theme.gridLineColor
+    this.c.lineWidth = this.theme.gridLineWidth
 
     const step = Math.round(viewH / rowsCount)
     const stepText = (yMax - yMin) / rowsCount
 
+    this.c.save()
     this.c.beginPath()
 
     for (let i = 1; i <= rowsCount; i++) {
@@ -71,10 +72,10 @@ export class Draw {
   }
 
   xAxis({data, visibleData, dpiW, dpiH, xRatio, mouse, margin, pos, translateX}) {
-    this.c.fillStyle = this.fillStyle
-    this.c.font = this.font
-    this.c.strokeStyle = this.strokeStyle
-    this.c.lineWidth = this.lineWidth
+    this.c.fillStyle = this.theme.gridTextColor
+    this.c.font = this.theme.font
+    this.c.strokeStyle = this.theme.gridActiveLineColor
+    this.c.lineWidth = this.theme.gridLineWidth
 
 
     const visibleItems = visibleData.labels.length
@@ -105,6 +106,7 @@ export class Draw {
       if (!mouse || !isMouseOver(x, mouse.x + Math.abs(translateX), dpiW, visibleData.labels.length)) {
         continue
       }
+
 
       this.c.moveTo(x, margin)
       this.c.lineTo(x, dpiH - margin)

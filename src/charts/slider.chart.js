@@ -1,4 +1,5 @@
 import {BaseChart} from './base.chart'
+import {css} from '../utils';
 
 export class SliderChart extends BaseChart {
   constructor(options) {
@@ -25,6 +26,15 @@ export class SliderChart extends BaseChart {
 
     const defaultWidth = this.w * 3 / 10 // 30% by default
     this.setPosition(this.w - defaultWidth, 0)
+  }
+
+
+  updateTheme(theme) {
+    css(this.$left, {background: theme.sliderBackground})
+    css(this.$right, {background: theme.sliderBackground})
+    css(this.$right.querySelector('[data-el=arrow]'), {background: theme.sliderArrow})
+    css(this.$left.querySelector('[data-el=arrow]'), {background: theme.sliderArrow})
+    css(this.$window, {borderColor: theme.sliderArrow})
   }
 
   update(data) {
