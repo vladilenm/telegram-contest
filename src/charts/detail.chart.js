@@ -70,9 +70,9 @@ export class DetailChart extends BaseChart {
         .filter(set => this.activeLabels.includes(set.name))
         .map(set => ({
           ...set,
-          data: set.data.slice(leftIndex, rightIndex)
+          data: set.data.slice(leftIndex ? leftIndex - 1 : 0, rightIndex)
         })),
-      labels: this.data.labels.concat().slice(leftIndex, rightIndex)
+      labels: this.data.labels.concat().slice(leftIndex ? leftIndex - 1 : 0, rightIndex)
     }
   }
 

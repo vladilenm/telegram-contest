@@ -24,7 +24,7 @@ export class SliderChart extends BaseChart {
     this.$wrap.addEventListener('mousedown', this.mouseDownHandler)
     document.addEventListener('mouseup', this.mouseUpHandler)
 
-    const defaultWidth = this.w * 3 / 10 // 30% by default
+    const defaultWidth = this.w * 0.3 // 30% by default
     this.setPosition(this.w - defaultWidth, 0)
   }
 
@@ -83,8 +83,9 @@ export class SliderChart extends BaseChart {
 
   setPosition(left, right) {
     const width = this.w - right - left
-    if (width < 20) {
-      this.$window.style.width = `20px`
+    const minWidth = this.w * 0.05
+    if (width < minWidth) {
+      this.$window.style.width = `${minWidth}px`
       return
     }
 
