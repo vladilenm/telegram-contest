@@ -14,21 +14,19 @@ export class DetailChart extends BaseChart {
     this.viewH = this.dpiH - this.margin * 2
     this.activeLabels = this.data.datasets.map(s => s.name)
     this.data.datasets.forEach(set => {
-      this.lines[set.name] = {
-        opacity: 1,
-        step: 0
-      }
+      this.lines[set.name] = {opacity: 1, step: 0}
     })
 
     this.pos = {}
-    this.oldMax = null
+    this.max = null
     this.dy = null
 
     // For optimization
     this.proxy = new Proxy(this, {
       set: (...options) => {
+        const result = Reflect.set(...options)
         this.raf = requestAnimationFrame(this.render)
-        return Reflect.set(...options)
+        return result
       }
     })
 
@@ -83,7 +81,7 @@ export class DetailChart extends BaseChart {
     this.updateMaxAndDelta(max, min)
 
     const [xRatio, yRatio] = computeRatio(
-      this.oldMax - min,
+      this.max - min,
       this.visibleData.labels.length,
       this.viewW,
       this.viewH
@@ -97,24 +95,24 @@ export class DetailChart extends BaseChart {
   }
 
   updateMaxAndDelta(max, min) {
-    if (!this.oldMax) {
-      this.oldMax = max
+    if (!this.max) {
+      this.max = max
     }
 
-    if (!this.dy && this.oldMax !== max) {
-      this.dy = computeDy({max, min, oldMax: this.oldMax, speed: this.animationSpeed})
+    if (!this.dy && this.max !== max) {
+      this.dy = computeDy({max, min, oldMax: this.max, speed: this.animationSpeed})
     }
 
     if (this.dy > 0) {
-      this.oldMax += this.dy
-      if (this.oldMax > max) {
-        this.oldMax = max
+      this.max += this.dy
+      if (this.max > max) {
+        this.max = max
         this.dy = null
       }
     } else if (this.dy < 0) {
-      this.oldMax += this.dy
-      if (this.oldMax < max) {
-        this.oldMax = max
+      this.max += this.dy
+      if (this.max < max) {
+        this.max = max
         this.dy = null
       }
     }
@@ -124,9 +122,17 @@ export class DetailChart extends BaseChart {
     return -1 * Math.round(this.data.labels.length * this.xRatio * this.pos.left / 100)
   }
 
+  get delta() {
+    return Math.round(this.max - this.yMax)
+  }
+
   shouldAnimate() {
-    const opacityFinished = Object.keys(this.lines).map(k => this.lines[k].step).every(l => l === 0)
-    return this.dy || !opacityFinished
+    const isTransitionFinished = Object
+      .keys(this.lines)
+      .map(k => this.lines[k].step)
+      .every(l => l === 0)
+
+    return this.dy || !isTransitionFinished || this.delta
   }
 
   updateTheme(theme) {
@@ -135,27 +141,35 @@ export class DetailChart extends BaseChart {
   }
 
   render() {
+    this.clear()
+    this.setup()
+
     console.log('[Detail Chart]: render')
     if (this.shouldAnimate()) {
       this.raf = requestAnimationFrame(this.render)
     }
 
-    this.clear()
-    this.setup()
-
-    const {dpiW, dpiH, xRatio, mouse, viewH, yMax, yMin, yRatio, margin} = this
-
     this.draw.yAxis({
-      dpiW, viewH, yMax, yMin, margin,
+      dy: this.dy,
+      dpiW: this.dpiW,
+      viewH: this.viewH,
+      delta: this.delta,
+      yMax: this.yMax,
+      yMin: this.yMin,
+      margin: this.margin,
       rowsCount: 5
     })
 
     this.draw.xAxis({
       data: this.data,
-      visibleData: this.visibleData,
+      visibleItemsLength: this.visibleData.labels.length,
       pos: this.pos,
+      dpiW: this.dpiW,
+      dpiH: this.dpiH,
+      xRatio: this.xRatio,
+      mouse: this.mouse,
+      margin: this.margin,
       activeLabels: this.activeLabels,
-      dpiW, dpiH, xRatio, mouse, margin,
       translateX: this.translateX,
     })
 
@@ -164,15 +178,17 @@ export class DetailChart extends BaseChart {
         return
       }
 
-      const coords = getCoordinates(data, yMin, viewH, xRatio, yRatio, margin)
+      const coords = getCoordinates(data, this.yMin, this.viewH, this.xRatio, this.yRatio, this.margin)
       this.updateOpacityFor(name)
 
       this.draw.line({
-        coords, color, mouse, dpiW,
+        coords, color,
         translateX: this.translateX,
+        mouse: this.mouse,
+        dpiW: this.dpiW,
         opacity: this.lines[name].opacity,
-        withCircles: true,
-        visibleItemsCount: this.visibleData.labels.length
+        visibleItemsCount: this.visibleData.labels.length,
+        withCircles: true
       })
     })
   }
