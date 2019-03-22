@@ -10,6 +10,7 @@ export class BaseChart {
     this.tooltip = options.tooltip
     this.data = options.data || {}
     this.trigger = options.onUpdate || noop
+    this.animationSpeed = options.animationSpeed || 15
 
     css(this.$el, {
       width: `${this.w}px`,
@@ -38,12 +39,14 @@ export class BaseChart {
 
   setup() {
     const [min, max] = getBoundary(this.data.datasets)
-    const [xRatio, yRatio] = computeRatio(
-      max - min,
-      this.data.labels.length,
-      this.viewW,
-      this.viewH
-    )
+
+    const [xRatio, yRatio] = computeRatio({
+      pos: {left: 0, right: 100},
+      viewH: this.viewH,
+      viewW: this.viewW,
+      length: this.data.labels.length,
+      delta: max - min
+    })
 
     this.yMin = min
     this.yMax = max
@@ -63,7 +66,7 @@ export class BaseChart {
     const {yMin, viewH, xRatio, yRatio, mouse, dpiW} = this
 
     this.data.datasets.forEach(({data, color}) => {
-      const coords = getCoordinates(data, yMin, viewH, xRatio, yRatio, 0)
+      const coords = getCoordinates({yMin, viewH, xRatio, yRatio, data, margin: 0})
       this.draw.line({coords, color, mouse, dpiW, opacity: 1})
     })
   }

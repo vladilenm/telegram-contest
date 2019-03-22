@@ -3,7 +3,7 @@ import {SliderChart} from './slider.chart'
 import {Tooltip} from '../components/tooltip'
 import {Label} from '../components/label'
 import themes from '../themes'
-import {css} from '../utils';
+import {css} from '../utils'
 
 const template = `
   <div class="tg-chart">
@@ -40,6 +40,7 @@ export class TelegramChart {
     this.theme = options.theme || themes.day
     this.w = options.width || 500
     this.h = options.height || 300
+    this.animationSpeed = options.animationSpeed || 15
 
     this.$el.insertAdjacentHTML('afterbegin', template)
 
@@ -79,6 +80,7 @@ export class TelegramChart {
       height: this.h,
       tooltip: this.tooltip,
       data: this.data,
+      animationSpeed: this.animationSpeed,
       theme: this.theme
     })
 

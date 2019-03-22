@@ -1,4 +1,4 @@
-import {getRgbValue, group, hexToRgb, isMouseOver, toDate} from './utils'
+import {getRgbValue, hexToRgb, isMouseOver, toDate} from './utils'
 
 export class Draw {
   constructor(context, tooltip, theme) {
@@ -7,7 +7,7 @@ export class Draw {
     this.theme = theme
   }
 
-  updateTheme(theme) {
+  setTheme(theme) {
     this.theme = theme
   }
 
@@ -53,7 +53,7 @@ export class Draw {
     this.c.lineWidth = this.theme.gridLineWidth
   }
 
-  yAxis({dpiW, viewH, yMax, yMin, margin, delta, dy, rowsCount = 5}) {
+  yAxis({dpiW, viewH, yMax, yMin, margin, delta, rowsCount = 5}) {
     this.setContextStyles()
 
     const step = Math.round(viewH / rowsCount)
@@ -76,18 +76,16 @@ export class Draw {
   }
 
   // To reduce calls to rgb converter
-  getColorSetter() {
-    const r = getRgbValue(this.theme.gridTextColor)
+  getColorSetter(hexColor) {
+    const r = getRgbValue(hexColor)
     return opacity => {
       return `rgba(${parseInt(r[1], 16)}, ${parseInt(r[2], 16)}, ${parseInt(r[3], 16)}, ${opacity})`
     }
   }
 
-  xAxis({data, visibleItemsLength, pos, viewW, activeLabels, dpiW, dpiH, xRatio, mouse, margin, translateX}) {
+  xAxis({data, datasets, visibleItemsLength, dpiW, dpiH, xRatio, mouse, margin, translateX}) {
     this.setContextStyles()
     this.c.strokeStyle = this.theme.gridActiveLineColor
-
-    const visibleDatasets = data.datasets.filter(s => activeLabels.includes(s.name))
 
     this.c.beginPath()
     this.c.save()
@@ -106,7 +104,7 @@ export class Draw {
 
     const a = {}
 
-    const colorSetter = this.getColorSetter()
+    const colorSetter = this.getColorSetter(this.theme.gridTextColor)
 
     for (let i = 0; i < data.labels.length; i++) {
       const x = Math.floor(i * xRatio)
@@ -147,9 +145,7 @@ export class Draw {
         nextStart = Math.floor(visibleIdxs[idx + 1] * xRatio)
         count++
       } else {
-        if (!a[count]) {
-          a[count] = []
-        }
+        if (!a[count]) {a[count] = []}
         a[count].push({x, text})
       }
 
@@ -164,12 +160,11 @@ export class Draw {
 
       this.tooltip.show(mouse.tooltip, {
         title: toDate(data.labels[i], true),
-        items: visibleDatasets
-          .map(set => ({
-            name: set.name,
-            color: set.color,
-            value: set.data[i]
-          }))
+        items: datasets.map(set => ({
+          name: set.name,
+          color: set.color,
+          value: set.data[i]
+        }))
       })
     }
 

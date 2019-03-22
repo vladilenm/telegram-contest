@@ -8,8 +8,9 @@ const chart = new TelegramChart({
   el: document.getElementById('chart'),
   width: 600,
   height: 200,
-  data: transformData(data[0]),
-  theme: themes.day
+  data: transformData(data[2]),
+  theme: themes.day,
+  animationSpeed: 20
 })
 
 // Theme switcher

@@ -34,16 +34,17 @@ export function getBoundary(datasets) {
   return [min, max]
 }
 
-export function computeRatio(delta, length, width, height) {
-  const yRatio = delta / height
-  const xRatio = width / (length - 2)
+export function computeRatio({pos, viewH, viewW, length, delta}) {
+  const percent = (pos.right - pos.left) / 100
+  const xRatio = viewW / percent / (length - 2)
+  const yRatio = delta / viewH
 
   return [xRatio, yRatio]
 }
 
-export function getCoordinates(data, min, height, xRatio, yRatio, margin) {
+export function getCoordinates({data, yMin, viewH, xRatio, yRatio, margin}) {
   return data.map((value, index) => {
-    const y = Math.floor(height - ((value - min) / yRatio))
+    const y = Math.floor(viewH - ((value - yMin) / yRatio))
     const x = Math.floor((index) * xRatio)
     return [x, y + margin]
   })
@@ -66,21 +67,12 @@ export function css(el, styles = {}) {
   })
 }
 
-export function group(array, size) {
-  const result = []
-
-  const step = Math.floor(array.length / size)
-  for (let index = 0; index < array.length; index += step) {
-    result.push(array.slice(index, index + size))
-  }
-
-  return result
-}
-
 export function noop() {}
 
 export function computeDy({max, min, oldMax, speed}) {
   const delta = max - oldMax
+  // console.log('delta', delta)
+  // return delta
   return Math.abs(delta) > (max - min) / speed
     ? delta / speed
     : delta

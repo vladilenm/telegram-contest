@@ -10,7 +10,6 @@ export class DetailChart extends BaseChart {
     super.prepare()
     this.lines = {}
     this.margin = 40
-    this.animationSpeed = 10
     this.viewH = this.dpiH - this.margin * 2
     this.activeLabels = this.data.datasets.map(s => s.name)
     this.data.datasets.forEach(set => {
@@ -40,6 +39,32 @@ export class DetailChart extends BaseChart {
     this.$el.addEventListener('mouseleave', this.mouseLeaveHandler)
   }
 
+  get datasets() {
+    const {length} = this.data.labels
+    const leftIndex = Math.round(length * this.pos.left / 100)
+    const rightIndex = Math.round(length * this.pos.right / 100)
+
+    const datasets = this.data.datasets
+      .filter(set => this.activeLabels.includes(set.name))
+      .map(set => ({
+        ...set,
+        data: set.data.slice(leftIndex, rightIndex)
+      }))
+
+    return {
+      length: datasets[0].data.length,
+      value: datasets
+    }
+  }
+
+  get translateX() {
+    return -1 * Math.round(this.data.labels.length * this.xRatio * this.pos.left / 100)
+  }
+
+  get delta() {
+    return Math.round(this.max - this.yMax)
+  }
+
   updatePosition(pos) {
     this.proxy.pos = pos
   }
@@ -60,44 +85,17 @@ export class DetailChart extends BaseChart {
     this.proxy.activeLabels = labels
   }
 
-  get visibleData() {
-    const {length} = this.data.labels
-    const leftIndex = Math.round(length * this.pos.left / 100)
-    const rightIndex = Math.round(length * this.pos.right / 100)
-
-    return {
-      datasets: this.data.datasets
-        .filter(set => this.activeLabels.includes(set.name))
-        .map(set => ({
-          ...set,
-          data: set.data.slice(leftIndex, rightIndex)
-        })),
-      labels: this.data.labels.concat().slice(leftIndex, rightIndex)
-    }
-  }
-
-  get translateX() {
-    return -1 * Math.round(this.data.labels.length * this.xRatio * this.pos.left / 100)
-  }
-
-  get delta() {
-    return Math.round(this.max - this.yMax)
-  }
-
   setup() {
-    const [min, max] = getBoundary(this.visibleData.datasets)
+    const [min, max] = getBoundary(this.datasets.value)
     this.updateMaxAndDelta(max, min)
 
-    // let [xRatio, yRatio] = computeRatio(
-    //   this.max - min,
-    //   this.pos,
-    //   this.data.labels.length,
-    //   this.viewW,
-    //   this.viewH
-    // )
-    const percent = (this.pos.right - this.pos.left) / 100
-    const xRatio = this.viewW / percent / (this.data.labels.length - 2)
-    const yRatio = (this.max - min) / this.viewH
+    const [xRatio, yRatio] = computeRatio({
+      pos: this.pos,
+      viewH: this.viewH,
+      viewW: this.viewW,
+      length: this.data.labels.length,
+      delta: this.max - min
+    })
 
     this.yMin = min
     this.yMax = max
@@ -140,7 +138,7 @@ export class DetailChart extends BaseChart {
   }
 
   updateTheme(theme) {
-    this.draw.updateTheme(theme)
+    this.draw.setTheme(theme)
     this.raf = requestAnimationFrame(this.render)
   }
 
@@ -153,7 +151,6 @@ export class DetailChart extends BaseChart {
     }
 
     this.draw.yAxis({
-      dy: this.dy,
       dpiW: this.dpiW,
       viewH: this.viewH,
       delta: this.delta,
@@ -165,15 +162,13 @@ export class DetailChart extends BaseChart {
 
     this.draw.xAxis({
       data: this.data,
-      visibleItemsLength: this.visibleData.labels.length,
+      visibleItemsLength: this.datasets.length,
+      datasets: this.datasets.value,
       dpiW: this.dpiW,
-      viewW: this.viewW,
-      pos: this.pos,
       dpiH: this.dpiH,
       xRatio: this.xRatio,
       mouse: this.mouse,
       margin: this.margin,
-      activeLabels: this.activeLabels,
       translateX: this.translateX
     })
 
@@ -182,7 +177,15 @@ export class DetailChart extends BaseChart {
         return
       }
 
-      const coords = getCoordinates(data, this.yMin, this.viewH, this.xRatio, this.yRatio, this.margin)
+      const coords = getCoordinates({
+        yMin: this.yMin,
+        viewH: this.viewH,
+        xRatio: this.xRatio,
+        yRatio: this.yRatio,
+        margin: this.margin,
+        data
+      })
+
       this.updateOpacityFor(name)
 
       this.draw.line({
@@ -191,7 +194,7 @@ export class DetailChart extends BaseChart {
         mouse: this.mouse,
         dpiW: this.dpiW,
         opacity: this.lines[name].opacity,
-        visibleItemsCount: this.visibleData.labels.length,
+        visibleItemsCount: this.datasets.length,
         withCircles: true
       })
     })
