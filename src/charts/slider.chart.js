@@ -1,5 +1,5 @@
 import {BaseChart} from './base.chart'
-import {css} from '../utils';
+import {css} from '../utils'
 
 export class SliderChart extends BaseChart {
   constructor(options) {
@@ -25,7 +25,7 @@ export class SliderChart extends BaseChart {
     document.addEventListener('mouseup', this.mouseUpHandler)
 
     const defaultWidth = this.w * 0.3 // 30% by default
-    this.setPosition(this.w - defaultWidth, 0)
+    this.setPosition(0, this.w - defaultWidth)
   }
 
 
@@ -83,7 +83,7 @@ export class SliderChart extends BaseChart {
 
   setPosition(left, right) {
     const width = this.w - right - left
-    const minWidth = this.w * 0.05
+    const minWidth = this.w * 0.05 // 5% of full width
     if (width < minWidth) {
       this.$window.style.width = `${minWidth}px`
       return
@@ -114,8 +114,8 @@ export class SliderChart extends BaseChart {
     const rightPx = this.w - parseInt(this.$right.style.width)
 
     return [
-      Math.ceil(leftPx * 100 / this.w),
-      Math.floor(rightPx * 100 / this.w)
+      leftPx * 100 / this.w,
+      rightPx * 100 / this.w
     ]
   }
 

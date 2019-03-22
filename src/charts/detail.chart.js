@@ -62,30 +62,42 @@ export class DetailChart extends BaseChart {
 
   get visibleData() {
     const {length} = this.data.labels
-    const leftIndex = Math.floor(length * this.pos.left / 100)
-    const rightIndex = Math.floor(length * this.pos.right / 100)
+    const leftIndex = Math.round(length * this.pos.left / 100)
+    const rightIndex = Math.round(length * this.pos.right / 100)
 
     return {
       datasets: this.data.datasets
         .filter(set => this.activeLabels.includes(set.name))
         .map(set => ({
           ...set,
-          data: set.data.slice(leftIndex ? leftIndex - 1 : 0, rightIndex)
+          data: set.data.slice(leftIndex, rightIndex)
         })),
-      labels: this.data.labels.concat().slice(leftIndex ? leftIndex - 1 : 0, rightIndex)
+      labels: this.data.labels.concat().slice(leftIndex, rightIndex)
     }
+  }
+
+  get translateX() {
+    return -1 * Math.round(this.data.labels.length * this.xRatio * this.pos.left / 100)
+  }
+
+  get delta() {
+    return Math.round(this.max - this.yMax)
   }
 
   setup() {
     const [min, max] = getBoundary(this.visibleData.datasets)
     this.updateMaxAndDelta(max, min)
 
-    const [xRatio, yRatio] = computeRatio(
-      this.max - min,
-      this.visibleData.labels.length,
-      this.viewW,
-      this.viewH
-    )
+    // let [xRatio, yRatio] = computeRatio(
+    //   this.max - min,
+    //   this.pos,
+    //   this.data.labels.length,
+    //   this.viewW,
+    //   this.viewH
+    // )
+    const percent = (this.pos.right - this.pos.left) / 100
+    const xRatio = this.viewW / percent / (this.data.labels.length - 2)
+    const yRatio = (this.max - min) / this.viewH
 
     this.yMin = min
     this.yMax = max
@@ -118,14 +130,6 @@ export class DetailChart extends BaseChart {
     }
   }
 
-  get translateX() {
-    return -1 * Math.round(this.data.labels.length * this.xRatio * this.pos.left / 100)
-  }
-
-  get delta() {
-    return Math.round(this.max - this.yMax)
-  }
-
   shouldAnimate() {
     const isTransitionFinished = Object
       .keys(this.lines)
@@ -144,7 +148,6 @@ export class DetailChart extends BaseChart {
     this.clear()
     this.setup()
 
-    console.log('[Detail Chart]: render')
     if (this.shouldAnimate()) {
       this.raf = requestAnimationFrame(this.render)
     }
@@ -163,14 +166,15 @@ export class DetailChart extends BaseChart {
     this.draw.xAxis({
       data: this.data,
       visibleItemsLength: this.visibleData.labels.length,
-      pos: this.pos,
       dpiW: this.dpiW,
+      viewW: this.viewW,
+      pos: this.pos,
       dpiH: this.dpiH,
       xRatio: this.xRatio,
       mouse: this.mouse,
       margin: this.margin,
       activeLabels: this.activeLabels,
-      translateX: this.translateX,
+      translateX: this.translateX
     })
 
     this.data.datasets.forEach(({data, color, name}) => {

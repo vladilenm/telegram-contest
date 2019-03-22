@@ -8,7 +8,6 @@ export class BaseChart {
     this.w = options.width
     this.h = options.height
     this.tooltip = options.tooltip
-    // this.theme = options.theme
     this.data = options.data || {}
     this.trigger = options.onUpdate || noop
 

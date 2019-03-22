@@ -1,4 +1,4 @@
-import {group, hexToRgb, isMouseOver, toDate} from './utils'
+import {getRgbValue, group, hexToRgb, isMouseOver, toDate} from './utils'
 
 export class Draw {
   constructor(context, tooltip, theme) {
@@ -75,7 +75,15 @@ export class Draw {
     this.c.closePath()
   }
 
-  xAxis({data, visibleItemsLength, activeLabels, dpiW, dpiH, xRatio, mouse, margin, pos, translateX}) {
+  // To reduce calls to rgb converter
+  getColorSetter() {
+    const r = getRgbValue(this.theme.gridTextColor)
+    return opacity => {
+      return `rgba(${parseInt(r[1], 16)}, ${parseInt(r[2], 16)}, ${parseInt(r[3], 16)}, ${opacity})`
+    }
+  }
+
+  xAxis({data, visibleItemsLength, pos, viewW, activeLabels, dpiW, dpiH, xRatio, mouse, margin, translateX}) {
     this.setContextStyles()
     this.c.strokeStyle = this.theme.gridActiveLineColor
 
@@ -86,22 +94,64 @@ export class Draw {
     this.c.translate(translateX, 0)
     this.c.moveTo(0, margin)
 
-    const every = visibleItemsLength <= 12
-      ? visibleItemsLength < 6 ? 1 : 2
-      : Math.floor(visibleItemsLength / 12) * 3
+    const columnsCount = 6
+
+    const labelWidth = Math.round(dpiW / 7)
+    const every = Math.floor(data.labels.length / 6)
+    const visibleIdxs = [0, every, every * 2, every * 3, every * 4 - 1, every * 5 - 2, every * 6 - 3]
+
+    let nextStart = 0
+    let prevEnd = 0
+    let count = 0
+
+    const a = {}
+
+    const colorSetter = this.getColorSetter()
 
     for (let i = 0; i < data.labels.length; i++) {
-      let x = Math.floor(i * xRatio)
+      const x = Math.floor(i * xRatio)
       const text = toDate(data.labels[i])
 
-      this.c.save()
+      if (visibleIdxs.includes(i)) {
+        if (a[count]) {
+          const between = nextStart - prevEnd
+          const itemsBetween = Math.floor(between / labelWidth)
+          const opacity = Math.abs(itemsBetween - between / labelWidth)
 
-      if (i % every !== 0) {
-        this.c.fillStyle = `rgba(223, 230, 235, ${0})`
+          if (itemsBetween === 1) {
+            const idx = Math.floor(a[count].length / 2)
+            const l = a[count][idx]
+            this.c.save()
+            this.c.fillStyle = colorSetter(opacity)
+            this.c.fillText(l.text, l.x, dpiH - 10)
+            this.c.restore()
+          }
+
+          if (itemsBetween >= 2) {
+            const step = Math.floor(a[count].length / 3) - 1
+            for (let j = 1; j <= 3; j++) {
+              this.c.save()
+              if (itemsBetween === 2 && (j === 1 || j === 3)) {
+                this.c.fillStyle = colorSetter(opacity)
+              }
+              let l = a[count][step * j]
+              this.c.fillText(l.text, l.x, dpiH - 10)
+              this.c.restore()
+            }
+          }
+        }
+
+        this.c.fillText(text, x, dpiH - 10)
+        const idx = visibleIdxs.findIndex(j => j === i)
+        prevEnd = x + labelWidth
+        nextStart = Math.floor(visibleIdxs[idx + 1] * xRatio)
+        count++
+      } else {
+        if (!a[count]) {
+          a[count] = []
+        }
+        a[count].push({x, text})
       }
-
-      this.c.fillText(text, x, dpiH - 10)
-      this.c.restore()
 
       if (!mouse || !isMouseOver(x, mouse.x + Math.abs(translateX), dpiW, visibleItemsLength)) {
         continue

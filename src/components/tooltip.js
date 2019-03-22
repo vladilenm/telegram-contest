@@ -22,9 +22,11 @@ export class Tooltip {
 
     this.$el.innerHTML = ''
     const {height, width} = this.$el.getBoundingClientRect()
-    this.$el.style.display = 'block'
-    this.$el.style.top = `${top - height}px`
-    this.$el.style.left = `${left + (width / 2)}px`
+    css(this.$el, {
+      display: 'block',
+      top: `${top - height}px`,
+      left: `${left + (width / 2)}px`
+    })
 
     this.$el.insertAdjacentHTML('afterbegin', `
       <div class="tooltip-title">${data.title}</div>
