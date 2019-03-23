@@ -135,6 +135,8 @@ export class Draw {
               }
               if (l.x + labelWidth < nextStart) {
                 this.c.fillText(l.text, l.x, dpiH - 10)
+              } else if (Math.abs(l.x + labelWidth - nextStart) < labelWidth / 2 ) {
+                this.c.fillText(l.text, l.x, dpiH - 10)
               }
               this.c.restore()
             }

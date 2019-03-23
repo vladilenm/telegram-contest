@@ -4,14 +4,44 @@ import {transformData} from './utils'
 import themes from './themes'
 import './scss/index.scss'
 
-const chart = new TelegramChart({
-  el: document.getElementById('chart'),
+const chart1 = new TelegramChart({
+  el: document.getElementById('chart1'),
   width: 600,
   height: 200,
-  data: transformData(data[0]),
+  data: transformData(data[0])
+})
+
+const chart2 = new TelegramChart({
+  el: document.getElementById('chart2'),
+  width: 600,
+  height: 200,
+  data: transformData(data[1])
+})
+
+const chart3 = new TelegramChart({
+  el: document.getElementById('chart3'),
+  width: 600,
+  height: 200,
+  data: transformData(data[2])
+})
+
+const chart4 = new TelegramChart({
+  el: document.getElementById('chart4'),
+  width: 600,
+  height: 200,
+  data: transformData(data[3])
+})
+
+const chart5 = new TelegramChart({
+  el: document.getElementById('chart5'),
+  width: 600,
+  height: 200,
+  data: transformData(data[4]),
   theme: themes.day,
   animationSpeed: 20
 })
+
+const charts = [chart1, chart2, chart3, chart4, chart5]
 
 // Theme switcher
 document.querySelector('#theme-switch').addEventListener('click', event => {
@@ -23,5 +53,5 @@ document.querySelector('#theme-switch').addEventListener('click', event => {
     : 'Switch to Night Mode'
   event.target.setAttribute('data-theme', theme === 'night' ? 'day' : 'night')
 
-  chart.setTheme(themes[theme])
+  charts.forEach(c => c.setTheme(themes[theme]))
 })

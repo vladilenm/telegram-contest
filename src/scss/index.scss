@@ -13,6 +13,16 @@
   padding: 0;
 }
 
+.app-title {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+body {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+
 .theme-button {
   display: flex;
   justify-content: center;
@@ -26,11 +36,12 @@
 }
 
 .chart-wrap {
-  width: 100%;
-  padding-top: 2rem;
   display: flex;
   align-items: center;
   flex-direction: column;
+  width: 100%;
+  padding-top: 2rem;
+  margin-bottom: 1rem;
 }
 
 body.tg-chart-preload .tg-chart-checkbox  {
