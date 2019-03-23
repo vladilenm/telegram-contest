@@ -27,7 +27,7 @@ export class Draw {
 
     if (withCircles) {
       for (let i = 0; i < coords.length; i++) {
-        if (mouse && isMouseOver(coords[i][0], mouse.x + Math.abs(translateX), dpiW, visibleItemsCount)) {
+        if (isMouseOver(coords[i][0], mouse, translateX, dpiW, visibleItemsCount)) {
           this.circle(coords[i], color)
           break
         }
@@ -129,11 +129,13 @@ export class Draw {
             const step = Math.floor(a[count].length / 3) - 1
             for (let j = 1; j <= 3; j++) {
               this.c.save()
+              const l = a[count][step * j]
               if (itemsBetween === 2 && (j === 1 || j === 3)) {
                 this.c.fillStyle = colorSetter(opacity)
               }
-              let l = a[count][step * j]
-              this.c.fillText(l.text, l.x, dpiH - 10)
+              if (l.x + labelWidth < nextStart) {
+                this.c.fillText(l.text, l.x, dpiH - 10)
+              }
               this.c.restore()
             }
           }
@@ -149,7 +151,7 @@ export class Draw {
         a[count].push({x, text})
       }
 
-      if (!mouse || !isMouseOver(x, mouse.x + Math.abs(translateX), dpiW, visibleItemsLength)) {
+      if (!isMouseOver(x, mouse, translateX, dpiW, visibleItemsLength)) {
         continue
       }
 

@@ -1,7 +1,0 @@
-
-7. Tooltip position + hover + styles
-8. Resize
-11. Change theme
-12. Optimize
-13. y labels z index
-14. Add touch effect

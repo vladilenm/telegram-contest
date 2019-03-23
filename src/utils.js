@@ -71,15 +71,16 @@ export function noop() {}
 
 export function computeDy({max, min, oldMax, speed}) {
   const delta = max - oldMax
-  // console.log('delta', delta)
-  // return delta
   return Math.abs(delta) > (max - min) / speed
     ? delta / speed
     : delta
 }
 
-export function isMouseOver(x, mouse, dpiW, length) {
-  return Math.abs(x - mouse) < dpiW / length / 2
+export function isMouseOver(x, mouse, translateX, dpiW, length) {
+  if (!mouse) {
+    return false
+  }
+  return Math.abs(x - (mouse.x + Math.abs(translateX))) < dpiW / length / 2
 }
 
 

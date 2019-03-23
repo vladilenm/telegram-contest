@@ -163,7 +163,7 @@ export class DetailChart extends BaseChart {
     this.draw.xAxis({
       data: this.data,
       visibleItemsLength: this.datasets.length,
-      datasets: this.datasets.value,
+      datasets: this.data.datasets.filter(set => this.activeLabels.includes(set.name)),
       dpiW: this.dpiW,
       dpiH: this.dpiH,
       xRatio: this.xRatio,
