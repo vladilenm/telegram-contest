@@ -8,7 +8,9 @@ const chart1 = new TelegramChart({
   el: document.getElementById('chart1'),
   width: 600,
   height: 200,
-  data: transformData(data[0])
+  data: transformData(data[0]),
+  theme: themes.day,
+  animationSpeed: 20
 })
 
 const chart2 = new TelegramChart({
@@ -36,9 +38,7 @@ const chart5 = new TelegramChart({
   el: document.getElementById('chart5'),
   width: 600,
   height: 200,
-  data: transformData(data[4]),
-  theme: themes.day,
-  animationSpeed: 20
+  data: transformData(data[4])
 })
 
 const charts = [chart1, chart2, chart3, chart4, chart5]
