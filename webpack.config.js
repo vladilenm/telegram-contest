@@ -17,6 +17,7 @@ module.exports = {
       filename: 'bundle.css',
     })
   ],
+  devtool: 'source-map',
   module: {
     rules: [
       // {
