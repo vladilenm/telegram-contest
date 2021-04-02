@@ -1,0 +1,245 @@
+@mixin clear-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: sans-serif;
+  background: #666;
+}
+
+.container {
+  max-width: 800px;
+  margin: 5rem auto;
+}
+
+.card {
+  display: flex;
+  justify-content: center;
+  border-radius: 4px;
+  background: #fff;
+  padding: 1rem;
+  box-shadow: 2px 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.tg-chart {
+  position: relative;
+
+  > canvas {
+    z-index: 2;
+  }
+
+  .tg-chart-slider {
+    position: relative;
+    margin-bottom: 1rem;
+    z-index: 1;
+
+    &__right,
+    &__left {
+      transition: background 0.22s ease-in-out;
+      background: #f5f9fb;
+      opacity: 0.8;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+    }
+
+    &__left {
+      left: 0;
+    }
+
+    &__right {
+      right: 0;
+    }
+
+    &__arrow--left,
+    &__arrow--right {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      transition: background 0.22s ease-in-out;
+      background: #ddeaf3;
+      width: 4px;
+    }
+
+    &__arrow--left {
+      right: 0;
+      cursor: w-resize;
+    }
+
+    &__arrow--right {
+      left: 0;
+      cursor: e-resize;
+    }
+
+    &__window {
+      position: absolute;
+      background: transparent;
+      top: 0;
+      bottom: 0;
+    }
+  }
+
+  .tg-chart-tooltip {
+    position: absolute;
+    display: none;
+    max-width: 200px;
+    min-width: 120px;
+    padding: 0.5rem;
+    border-radius: 5px;
+    border: 1px solid #dfe6eb;
+    box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.05);
+    background: #fff;
+    color: #000;
+    overflow: hidden;
+    z-index: 3;
+
+    top: 50px;
+    left: 100px;
+
+    .tooltip-title {
+      text-align: center;
+      margin-bottom: 0.5rem;
+      white-space: nowrap;
+    }
+
+    .tooltip-list {
+      display: flex;
+      flex-wrap: wrap;
+      @include clear-list;
+    }
+
+    .tooltip-list-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-grow: 1;
+
+      .name {
+        font-size: 0.8rem;
+      }
+
+      .value {
+        font-size: 1rem;
+        font-weight: bold;
+      }
+    }
+  }
+}
+
+.tg-chart-checkbox {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  margin-right: 1rem;
+  border: 1px solid #e6ecf0;
+  padding: 0.5rem 0.8rem 0.5rem 0.5rem;
+  border-radius: 20px;
+  transition: border-color, color 0.22s ease-in-out;
+
+  input {
+    position: absolute;
+    left: 0;
+    top: 0;
+    min-width: 1rem;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    opacity: 0;
+    margin: 0;
+    padding: 0;
+    cursor: pointer;
+
+    &:checked + label > span {
+      border: 9px solid;
+      animation-name: pulse;
+      animation-duration: 1.3s;
+    }
+
+    &:checked + label > span:before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      border-bottom: 2px solid transparent;
+      border-right: 2px solid transparent;
+      transform: rotate(45deg);
+      transform-origin: 0 100%;
+      animation-name: checkbox-check;
+      animation-duration: 125ms;
+      animation-delay: 250ms;
+      animation-timing-function: cubic-bezier(0.4, 0, 0.23, 1);
+      animation-fill-mode: forwards;
+      //animation: checkbox-check 125ms 250ms cubic-bezier(.4, .0, .23, 1) forwards;
+    }
+  }
+
+  label {
+    position: relative;
+    font-weight: normal;
+    font-size: 0.8rem;
+    text-indent: 2rem;
+
+    > span {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1px solid;
+      z-index: 0;
+      left: -2px;
+      top: -2px;
+      background-color: transparent;
+      transition: all 250ms cubic-bezier(0.4, 0, 0.23, 1);
+      animation-name: pulse2;
+      animation-duration: 1.3s;
+    }
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(230, 236, 240, 1);
+  }
+  50% {
+    box-shadow: 0 0 0 35px rgba(230, 236, 240, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(230, 236, 240, 0);
+  }
+}
+
+@keyframes pulse2 {
+  0% {
+    box-shadow: 0 0 0 0 rgba(230, 236, 240, 1);
+  }
+  50% {
+    box-shadow: 0 0 0 35px rgba(230, 236, 240, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(230, 236, 240, 0);
+  }
+}
+
+@keyframes checkbox-check {
+  0% {
+    border-color: #fff;
+  }
+  33% {
+    width: 4px;
+    height: 0;
+  }
+  100% {
+    width: 4px;
+    height: 8px;
+    border-color: #fff;
+  }
+}
